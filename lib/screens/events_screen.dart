@@ -17,8 +17,8 @@ class _EventsScreenState extends State<EventsScreen>
   }
 
   Future<void> _fireSimpleEvent() async {
-    await SeniorObservability.logEvent(SeniorEvents.buttonClicked);
-    _addLog('Evento: ${SeniorEvents.buttonClicked}');
+    await SeniorObservability.logEvent(SeniorEvents.buttonClicked.value);
+    _addLog('Evento: ${SeniorEvents.buttonClicked.value}');
   }
 
   Future<void> _fireEventWithParams() async {
@@ -40,10 +40,10 @@ class _EventsScreenState extends State<EventsScreen>
 
   Future<void> _fireLoginEvent() async {
     await SeniorObservability.logEvent(
-      SeniorEvents.loginSuccess,
+      SeniorEvents.loginSuccess.value,
       params: {'method': 'email'},
     );
-    _addLog('Evento: ${SeniorEvents.loginSuccess}');
+    _addLog('Evento: ${SeniorEvents.loginSuccess.value}');
   }
 
   Future<void> _fireApiErrorEvent() async {

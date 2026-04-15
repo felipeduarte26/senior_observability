@@ -25,13 +25,19 @@ void main() {
   });
 
   group('SeniorEvents', () {
-    test('constants are not empty', () {
-      expect(SeniorEvents.buttonClicked, isNotEmpty);
-      expect(SeniorEvents.screenViewed, isNotEmpty);
-      expect(SeniorEvents.loginSuccess, isNotEmpty);
-      expect(SeniorEvents.loginFailed, isNotEmpty);
-      expect(SeniorEvents.logout, isNotEmpty);
-      expect(SeniorEvents.navigation, isNotEmpty);
+    test('values are not empty', () {
+      for (final event in SeniorEvents.values) {
+        expect(event.value, isNotEmpty);
+      }
+    });
+
+    test('values are snake_case strings', () {
+      expect(SeniorEvents.buttonClicked.value, 'button_clicked');
+      expect(SeniorEvents.screenViewed.value, 'screen_viewed');
+      expect(SeniorEvents.loginSuccess.value, 'login_success');
+      expect(SeniorEvents.loginFailed.value, 'login_failed');
+      expect(SeniorEvents.logout.value, 'logout');
+      expect(SeniorEvents.navigation.value, 'navigation');
     });
   });
 

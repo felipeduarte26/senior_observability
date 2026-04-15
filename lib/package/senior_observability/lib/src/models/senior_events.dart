@@ -1,31 +1,35 @@
-/// Pre-defined event name constants for team-wide standardization.
+/// Pre-defined event names for team-wide standardization.
 ///
 /// Using these constants ensures consistent event naming across
 /// all observability providers.
 ///
 /// ```dart
-/// SeniorObservability.logEvent(SeniorEvents.buttonClicked, params: {
+/// SeniorObservability.logEvent(SeniorEvents.buttonClicked.value, params: {
 ///   'button': 'login',
 /// });
 /// ```
-final class SeniorEvents {
-  SeniorEvents._();
-
+enum SeniorEvents {
   /// User tapped a button.
-  static const String buttonClicked = 'button_clicked';
+  buttonClicked('button_clicked'),
 
   /// Screen was viewed.
-  static const String screenViewed = 'screen_viewed';
+  screenViewed('screen_viewed'),
 
   /// Login completed successfully.
-  static const String loginSuccess = 'login_success';
+  loginSuccess('login_success'),
 
   /// Login attempt failed.
-  static const String loginFailed = 'login_failed';
+  loginFailed('login_failed'),
 
   /// User logged out.
-  static const String logout = 'logout';
+  logout('logout'),
 
   /// Navigation occurred.
-  static const String navigation = 'navigation';
+  navigation('navigation');
+
+  /// Creates a [SeniorEvents] with its corresponding event [value].
+  const SeniorEvents(this.value);
+
+  /// The snake_case event name sent to observability providers.
+  final String value;
 }

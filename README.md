@@ -110,14 +110,14 @@ SeniorObservability.logScreen('CheckoutScreen');
 
 ### Eventos pré-definidos
 
-Use as constantes de `SeniorEvents` para padronizar nomes no time:
+Use o enum `SeniorEvents` para padronizar nomes no time:
 
 ```dart
-SeniorObservability.logEvent(SeniorEvents.buttonClicked, params: {'button': 'login'});
-SeniorObservability.logEvent(SeniorEvents.loginSuccess);
+SeniorObservability.logEvent(SeniorEvents.buttonClicked.value, params: {'button': 'login'});
+SeniorObservability.logEvent(SeniorEvents.loginSuccess.value);
 ```
 
-| Constante                    | Valor            |
+| Enum                         | `.value`         |
 | ---------------------------- | ---------------- |
 | `SeniorEvents.buttonClicked` | `button_clicked` |
 | `SeniorEvents.screenViewed`  | `screen_viewed`  |
@@ -436,14 +436,15 @@ lib/
     │   └── senior_logger.dart                   SeniorLogger (final class)
     ├── models/
     │   ├── senior_user.dart                     SeniorUser (final class)
-    │   └── senior_events.dart                   SeniorEvents (final class)
+    │   └── senior_events.dart                   SeniorEvents (enum)
     ├── providers/
     │   ├── firebase_observability_provider.dart  FirebaseObservabilityProvider (final class)
     │   └── sentry_observability_provider.dart    SentryObservabilityProvider (final class)
     ├── navigation/
-    │   ├── senior_screen_observer.dart           SeniorScreenObserver (mixin)
     │   ├── senior_navigator_observer.dart        SeniorNavigatorObserver (final class)
-    │   └── senior_stateless_screen_observer.dart SeniorStatelessScreenObserver (mixin)
+    │   └── mixins/
+    │       ├── senior_screen_observer.dart        SeniorScreenObserver (mixin)
+    │       └── senior_stateless_screen_observer.dart SeniorStatelessScreenObserver (mixin)
     └── senior_observability_facade.dart          SeniorObservability (final class)
 ```
 

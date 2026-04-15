@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen>
     ));
 
     await SeniorObservability.logEvent(
-      SeniorEvents.loginSuccess,
+      SeniorEvents.loginSuccess.value,
       params: {'email': _emailController.text},
     );
 

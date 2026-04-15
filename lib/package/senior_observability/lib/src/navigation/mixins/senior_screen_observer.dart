@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../senior_observability_facade.dart';
+import '../../senior_observability_facade.dart';
 
 /// Mixin for [State] of [StatefulWidget] that automatically logs
 /// screen views on [initState].
