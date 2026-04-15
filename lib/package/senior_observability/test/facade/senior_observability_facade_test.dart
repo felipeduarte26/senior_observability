@@ -266,6 +266,137 @@ void main() {
       });
     });
 
+    group('IAppRunnerAwareProvider integration', () {
+      late MockAppRunnerAwareProvider appRunnerProvider;
+
+      setUp(() {
+        appRunnerProvider = MockAppRunnerAwareProvider();
+
+        when(() => appRunnerProvider.setUser(any()))
+            .thenAnswer((_) async {});
+        when(
+          () => appRunnerProvider.logEvent(
+            any(),
+            params: any(named: 'params'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => appRunnerProvider.logScreen(
+            any(),
+            params: any(named: 'params'),
+          ),
+        ).thenAnswer((_) async {});
+        when(() => appRunnerProvider.logError(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => appRunnerProvider.startTrace(any()))
+            .thenAnswer((_) async => null);
+        when(
+          () => appRunnerProvider.startHttpTrace(
+            url: any(named: 'url'),
+            method: any(named: 'method'),
+          ),
+        ).thenAnswer((_) async => null);
+        when(() => appRunnerProvider.dispose()).thenAnswer((_) async {});
+      });
+
+      test('calls initWithAppRunner instead of init', () async {
+        when(() => appRunnerProvider.initWithAppRunner(any()))
+            .thenAnswer((inv) async {
+          final runner = inv.positionalArguments[0] as AppRunner;
+          await runner();
+        });
+
+        await SeniorObservability.init(
+          providers: [appRunnerProvider],
+          appRunner: () {},
+          enableLogging: false,
+        );
+
+        verify(() => appRunnerProvider.initWithAppRunner(any())).called(1);
+        verifyNever(() => appRunnerProvider.init());
+        expect(SeniorObservability.isInitialized, isTrue);
+      });
+
+      test('appRunner is executed through the provider', () async {
+        var appRan = false;
+        when(() => appRunnerProvider.initWithAppRunner(any()))
+            .thenAnswer((inv) async {
+          final runner = inv.positionalArguments[0] as AppRunner;
+          await runner();
+        });
+
+        await SeniorObservability.init(
+          providers: [appRunnerProvider],
+          appRunner: () {
+            appRan = true;
+          },
+          enableLogging: false,
+        );
+
+        expect(appRan, isTrue);
+      });
+
+      test('mixes normal and appRunner-aware providers', () async {
+        when(() => appRunnerProvider.initWithAppRunner(any()))
+            .thenAnswer((inv) async {
+          final runner = inv.positionalArguments[0] as AppRunner;
+          await runner();
+        });
+
+        await SeniorObservability.init(
+          providers: [mockProvider, appRunnerProvider],
+          appRunner: () {},
+          enableLogging: false,
+        );
+
+        verify(() => mockProvider.init()).called(1);
+        verifyNever(() => appRunnerProvider.init());
+        verify(() => appRunnerProvider.initWithAppRunner(any())).called(1);
+      });
+
+      test(
+        'appRunner still executes when initWithAppRunner throws',
+        () async {
+          var appRan = false;
+          when(() => appRunnerProvider.initWithAppRunner(any()))
+              .thenThrow(Exception('provider crash'));
+
+          await SeniorObservability.init(
+            providers: [appRunnerProvider],
+            appRunner: () {
+              appRan = true;
+            },
+            enableLogging: false,
+          );
+
+          expect(appRan, isTrue);
+        },
+      );
+
+      test(
+        'appRunner runs only once when provider calls it before throwing',
+        () async {
+          var callCount = 0;
+          when(() => appRunnerProvider.initWithAppRunner(any()))
+              .thenAnswer((inv) async {
+            final runner = inv.positionalArguments[0] as AppRunner;
+            await runner();
+            throw Exception('post-runner error');
+          });
+
+          await SeniorObservability.init(
+            providers: [appRunnerProvider],
+            appRunner: () {
+              callCount++;
+            },
+            enableLogging: false,
+          );
+
+          expect(callCount, 1);
+        },
+      );
+    });
+
     group('safe operations before init', () {
       test('logEvent does not throw before init', () async {
         await SeniorObservability.logEvent('test');

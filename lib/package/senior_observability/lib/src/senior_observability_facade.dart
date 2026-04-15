@@ -8,9 +8,6 @@ import 'contracts/contracts.dart';
 import 'logger/logger.dart';
 import 'models/models.dart';
 
-/// Callback that starts the application (typically `() => runApp(MyApp())`).
-typedef AppRunner = FutureOr<void> Function();
-
 /// Main facade of the Senior Observability package.
 ///
 /// Single entry point for all observability operations.
@@ -42,18 +39,47 @@ final class SeniorObservability {
   static SeniorUser? get currentUser => _currentUser;
 
   /// Initializes Senior Observability with the desired providers and
-  /// starts the application.
+  /// starts the application inside a guarded error zone.
+  ///
+  /// Three layers of error capture are configured:
+  ///
+  /// 1. **[runZonedGuarded]** — catches uncaught errors in Futures,
+  ///    Streams, microtasks and synchronous code within the Dart zone.
+  /// 2. **[PlatformDispatcher.instance.onError]** — catches errors at
+  ///    the Flutter engine level and in the root zone.
+  /// 3. **[FlutterError.onError]** — catches Flutter framework errors
+  ///    (rendering, layout, etc.).
+  ///
+  /// Providers that implement [IAppRunnerAwareProvider] (e.g. Sentry) will
+  /// wrap the [appRunner] inside their own initialization, enabling
+  /// SDK-specific error capturing and performance monitoring.
+  /// All other providers are initialized via their plain [init] method.
   static Future<void> init({
     required List<IObservabilityProvider> providers,
     required AppRunner appRunner,
     bool enableLogging = true,
   }) async {
+    var appRunnerExecuted = false;
+
     try {
       WidgetsFlutterBinding.ensureInitialized();
       SeniorLogger.enabled = enableLogging;
 
       _composite = CompositeObservabilityProvider(providers);
-      await _composite!.init();
+
+      for (final provider in providers.where(
+        (p) => p is! IAppRunnerAwareProvider,
+      )) {
+        try {
+          await provider.init();
+        } catch (e, s) {
+          SeniorLogger.error(
+            'Failed to initialize ${provider.runtimeType}.',
+            error: e,
+            stackTrace: s,
+          );
+        }
+      }
 
       _setupGlobalErrorHandlers();
       _initialized = true;
@@ -62,14 +88,54 @@ final class SeniorObservability {
         'SeniorObservability initialized with ${providers.length} provider(s).',
       );
 
-      await appRunner();
+      AppRunner trackedRunner = () {
+        appRunnerExecuted = true;
+        runZonedGuarded(() => appRunner(), _onUncaughtZoneError);
+      };
+
+      for (final provider in providers.whereType<IAppRunnerAwareProvider>()) {
+        final currentRunner = trackedRunner;
+        trackedRunner = () => provider.initWithAppRunner(currentRunner);
+      }
+
+      await trackedRunner();
     } catch (e, s) {
       SeniorLogger.error(
         'Failed to initialize SeniorObservability.',
         error: e,
         stackTrace: s,
       );
+
+      if (!appRunnerExecuted) {
+        await appRunner();
+      }
     }
+  }
+
+  static void _setupGlobalErrorHandlers() {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      SeniorLogger.error(
+        'FlutterError caught: ${details.exceptionAsString()}',
+        error: details.exception,
+        stackTrace: details.stack,
+      );
+      _composite?.logError(details.exception, details.stack);
+    };
+
+    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+      SeniorLogger.error(
+        'PlatformDispatcher error caught.',
+        error: error,
+        stackTrace: stack,
+      );
+      _composite?.logError(error, stack);
+      return true;
+    };
+  }
+
+  static void _onUncaughtZoneError(Object error, StackTrace stack) {
+    SeniorLogger.error('Uncaught zone error.', error: error, stackTrace: stack);
+    _composite?.logError(error, stack);
   }
 
   /// Sets or updates the current user.
@@ -207,27 +273,6 @@ final class SeniorObservability {
         stackTrace: s,
       );
     }
-  }
-
-  static void _setupGlobalErrorHandlers() {
-    FlutterError.onError = (FlutterErrorDetails details) {
-      SeniorLogger.error(
-        'FlutterError caught: ${details.exceptionAsString()}',
-        error: details.exception,
-        stackTrace: details.stack,
-      );
-      _composite?.logError(details.exception, details.stack);
-    };
-
-    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      SeniorLogger.error(
-        'PlatformDispatcher error caught.',
-        error: error,
-        stackTrace: stack,
-      );
-      _composite?.logError(error, stack);
-      return true;
-    };
   }
 
   static Future<ITraceHandle?> _startTraceSafe(String name) async {

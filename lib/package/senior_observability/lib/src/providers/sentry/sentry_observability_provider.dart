@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart' hide AppRunner;
 
 import '../../contracts/contracts.dart';
 import '../../logger/logger.dart';
@@ -13,6 +13,10 @@ part '_sentry_http_trace_handle.dart';
 /// Integrates Sentry error tracking, breadcrumbs and transactions into a
 /// single [IObservabilityProvider] implementation.
 ///
+/// Also implements [IAppRunnerAwareProvider] so that [SentryFlutter.init]
+/// wraps the application runner, enabling automatic zone-based error
+/// capturing and performance monitoring.
+///
 /// When [dsn] is empty the provider disables itself and silently skips
 /// all operations.
 ///
@@ -23,7 +27,8 @@ part '_sentry_http_trace_handle.dart';
 /// );
 /// await provider.init();
 /// ```
-final class SentryObservabilityProvider implements IObservabilityProvider {
+final class SentryObservabilityProvider
+    implements IObservabilityProvider, IAppRunnerAwareProvider {
   /// Sentry DSN (cloud or self-hosted).
   final String dsn;
 
@@ -53,17 +58,51 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
     }
 
     await SentryFlutter.init((options) {
-      options.dsn = dsn;
-      options.tracesSampleRate = tracesSampleRate;
-      if (environment != null) {
-        options.environment = environment;
-      }
-      options.attachStacktrace = true;
-      options.enableAutoPerformanceTracing = true;
+      _configureOptions(options);
     });
 
     _enabled = true;
     SeniorLogger.info('Sentry initialized (dsn: ${_maskDsn(dsn)}).');
+  }
+
+  @override
+  Future<void> initWithAppRunner(AppRunner appRunner) async {
+    if (!_hasDsn) {
+      SeniorLogger.warning('Sentry DSN is empty — provider will be disabled.');
+      await appRunner();
+      return;
+    }
+
+    try {
+      await SentryFlutter.init(
+        (options) {
+          _configureOptions(options);
+        },
+        appRunner: () async => await appRunner(),
+      );
+
+      _enabled = true;
+      SeniorLogger.info(
+        'Sentry initialized with appRunner (dsn: ${_maskDsn(dsn)}).',
+      );
+    } catch (e, s) {
+      SeniorLogger.error(
+        'Sentry initialization failed — running app without Sentry.',
+        error: e,
+        stackTrace: s,
+      );
+      await appRunner();
+    }
+  }
+
+  void _configureOptions(SentryFlutterOptions options) {
+    options.dsn = dsn;
+    options.tracesSampleRate = tracesSampleRate;
+    if (environment != null) {
+      options.environment = environment;
+    }
+    options.attachStacktrace = true;
+    options.enableAutoPerformanceTracing = true;
   }
 
   @override

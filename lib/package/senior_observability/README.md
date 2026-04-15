@@ -65,11 +65,12 @@ Future<void> main() async {
 O `init` configura automaticamente:
 
 - `WidgetsFlutterBinding.ensureInitialized()`
-- Inicialização de todos os providers
-- Captura de `FlutterError.onError`
-- Captura de `PlatformDispatcher.instance.onError`
+- Inicialização de todos os providers (normais via `init()`, `IAppRunnerAwareProvider` via `initWithAppRunner`)
+- Captura via `FlutterError.onError` (erros do framework Flutter)
+- Captura via `PlatformDispatcher.instance.onError` (erros do engine / root zone)
+- Captura via `runZonedGuarded` (erros em Futures, Streams, microtasks)
 - Logger interno (desativável via `enableLogging: false`)
-- Execução do `appRunner` após toda a configuração
+- Execução do `appRunner` dentro da zona monitorada, encadeado através dos providers `IAppRunnerAwareProvider`
 
 ### 2. Definir usuário (após login)
 
@@ -141,12 +142,26 @@ try {
 }
 ```
 
-### Captura automática
+### Captura automática — 3 camadas
 
-Após `SeniorObservability.init()`, os seguintes erros são capturados automaticamente e enviados a todos os providers:
+Após `SeniorObservability.init()`, **três camadas complementares** capturam erros automaticamente e enviam para todos os providers:
 
-- **Flutter errors** — via `FlutterError.onError`
-- **Dart errors** — via `PlatformDispatcher.instance.onError`
+| Camada | O que captura |
+| --- | --- |
+| `runZonedGuarded` | Exceções síncronas, Futures sem `.catchError`, Streams sem handler, `scheduleMicrotask`, `Timer` — tudo dentro da zona Dart |
+| `PlatformDispatcher.instance.onError` | Erros na camada do Flutter engine e na root zone (fora da zona monitorada) |
+| `FlutterError.onError` | Erros do framework Flutter (rendering, layout, gestures) |
+
+Todas as camadas convergem para `composite.logError()`, que delega para **todos** os providers em paralelo. O `appRunner` é executado dentro de `runZonedGuarded`, garantindo cobertura completa:
+
+```
+runZonedGuarded(
+  () => runApp(MyApp()),   // app roda dentro da zona
+  onError → composite.logError → todos os providers
+)
+```
+
+> **Safety net**: Mesmo que a inicialização falhe, o app **sempre inicia**. O facade garante que o `appRunner` é chamado exatamente uma vez.
 
 ## Firebase Performance
 
@@ -242,6 +257,16 @@ Parâmetros opcionais:
 | `dsn`              | `String`  | —      | Endpoint do Sentry (obrigatório)         |
 | `tracesSampleRate` | `double`  | `1.0`  | Taxa de amostragem para traces (0.0–1.0) |
 | `environment`      | `String?` | `null` | Ambiente (`production`, `staging`, etc.) |
+
+### AppRunner integration
+
+O `SentryObservabilityProvider` implementa `IAppRunnerAwareProvider`, o que significa que o `SentryFlutter.init` envolve o `appRunner` automaticamente. Isso garante:
+
+- **Zone-based error capture** — erros Dart são capturados pela zona de erro do Sentry
+- **Auto performance monitoring** — o Sentry rastreia automaticamente o tempo de startup do app
+- **Full SDK integration** — todas as funcionalidades nativas do Sentry Flutter SDK ficam habilitadas
+
+O facade (`SeniorObservability.init`) detecta automaticamente providers que implementam `IAppRunnerAwareProvider` e encadeia o `appRunner` através deles. O dev não precisa fazer nada extra — basta chamar `SeniorObservability.init()` normalmente.
 
 ## Rastreamento automático de telas
 
@@ -348,6 +373,29 @@ final class MyCustomProvider implements IObservabilityProvider {
 }
 ```
 
+Se o provider precisa envolver o `appRunner` (como o Sentry), implemente também `IAppRunnerAwareProvider`:
+
+```dart
+final class MySdkProvider implements IObservabilityProvider, IAppRunnerAwareProvider {
+  @override
+  Future<void> init() async { /* standalone init (sem facade) */ }
+
+  @override
+  Future<void> initWithAppRunner(AppRunner appRunner) async {
+    try {
+      await MySdk.init(appRunner: appRunner);
+    } catch (e) {
+      // IMPORTANTE: SEMPRE chamar appRunner, mesmo se a inicialização falhar.
+      await appRunner();
+    }
+  }
+
+  // ... demais métodos
+}
+```
+
+> **Contrato**: `initWithAppRunner` **deve** chamar `appRunner` exatamente uma vez, mesmo em caso de falha. Isso garante que o app sempre inicia.
+
 Depois registre na inicialização:
 
 ```dart
@@ -428,6 +476,7 @@ lib/
 └── src/
     ├── contracts/
     │   ├── contracts.dart                            Barrel file
+    │   ├── app_runner_aware_provider_interface.dart   IAppRunnerAwareProvider + AppRunner typedef
     │   ├── observability_provider_interface.dart      IObservabilityProvider (abstract interface class)
     │   ├── trace_handle_interface.dart                ITraceHandle (abstract interface class)
     │   └── http_trace_handle_interface.dart           IHttpTraceHandle (abstract interface class)
