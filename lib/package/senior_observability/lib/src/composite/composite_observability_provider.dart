@@ -129,19 +129,17 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
   Future<void> _execute(
     Future<void> Function(IObservabilityProvider provider) action,
     String actionName,
-  ) async {
-    await Future.wait(
-      _providers.map((provider) async {
-        try {
-          await action(provider);
-        } catch (e, s) {
-          SeniorLogger.error(
-            'Failed to $actionName on ${provider.runtimeType}.',
-            error: e,
-            stackTrace: s,
-          );
-        }
-      }),
-    );
-  }
+  ) async => await Future.wait(
+    _providers.map((provider) async {
+      try {
+        await action(provider);
+      } catch (e, s) {
+        SeniorLogger.error(
+          'Failed to $actionName on ${provider.runtimeType}.',
+          error: e,
+          stackTrace: s,
+        );
+      }
+    }),
+  );
 }
