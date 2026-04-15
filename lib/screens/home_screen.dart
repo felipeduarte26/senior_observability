@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:senior_observability/senior_observability.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget with SeniorStatelessScreenObserver {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen>
-    with SeniorScreenObserver<HomeScreen> {
-  @override
-  Widget build(BuildContext context) {
+  Widget buildScreen(BuildContext context) {
     final theme = Theme.of(context);
     final user = SeniorObservability.currentUser;
 
