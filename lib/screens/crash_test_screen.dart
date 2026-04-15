@@ -12,39 +12,19 @@ class _CrashTestScreenState extends State<CrashTestScreen>
     with SeniorScreenObserver<CrashTestScreen> {
   String? _status;
 
-  void _triggerHandledException() {
-    try {
-      throw FormatException('Teste de exceção handled — ${DateTime.now()}');
-    } catch (e, s) {
-      SeniorObservability.logError(e, s);
-      setState(() => _status = 'Exceção handled enviada: $e');
-    }
-  }
-
-  void _triggerUnhandledException() {
-    throw StateError('Teste de exceção unhandled — ${DateTime.now()}');
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crash Test'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Crash Test'), centerTitle: true),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.bug_report,
-                size: 64,
-                color: theme.colorScheme.error,
-              ),
+              Icon(Icons.bug_report, size: 64, color: theme.colorScheme.error),
               const SizedBox(height: 24),
               Text(
                 'Teste de Crash Reporting',
@@ -110,5 +90,18 @@ class _CrashTestScreenState extends State<CrashTestScreen>
         ),
       ),
     );
+  }
+
+  void _triggerHandledException() {
+    try {
+      throw FormatException('Teste de exceção handled — ${DateTime.now()}');
+    } catch (e, s) {
+      SeniorObservability.logError(e, s);
+      setState(() => _status = 'Exceção handled enviada: $e');
+    }
+  }
+
+  void _triggerUnhandledException() {
+    throw StateError('Teste de exceção unhandled — ${DateTime.now()}');
   }
 }

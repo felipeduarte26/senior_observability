@@ -25,38 +25,6 @@ class _UsersScreenState extends State<UsersScreen>
     _fetchUsers();
   }
 
-  Future<void> _fetchUsers() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
-    try {
-      final response = await _client.get(
-        Uri.parse('https://dummyjson.com/users?limit=10'),
-      );
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        setState(() {
-          _users = body['users'] as List<dynamic>;
-          _loading = false;
-        });
-      } else {
-        setState(() {
-          _error = 'HTTP ${response.statusCode}';
-          _loading = false;
-        });
-      }
-    } catch (e, s) {
-      await SeniorObservability.logError(e, s);
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
-  }
-
   @override
   void dispose() {
     _client.close();
@@ -70,10 +38,7 @@ class _UsersScreenState extends State<UsersScreen>
         title: const Text('Usuários'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchUsers,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchUsers),
         ],
       ),
       body: _buildBody(),
@@ -123,5 +88,37 @@ class _UsersScreenState extends State<UsersScreen>
         );
       },
     );
+  }
+
+  Future<void> _fetchUsers() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final response = await _client.get(
+        Uri.parse('https://dummyjson.com/users?limit=10'),
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        setState(() {
+          _users = body['users'] as List<dynamic>;
+          _loading = false;
+        });
+      } else {
+        setState(() {
+          _error = 'HTTP ${response.statusCode}';
+          _loading = false;
+        });
+      }
+    } catch (e, s) {
+      await SeniorObservability.logError(e, s);
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
   }
 }

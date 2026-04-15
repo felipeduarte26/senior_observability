@@ -12,60 +12,12 @@ class _EventsScreenState extends State<EventsScreen>
     with SeniorScreenObserver<EventsScreen> {
   final _logs = <String>[];
 
-  void _addLog(String message) {
-    setState(() => _logs.insert(0, message));
-  }
-
-  Future<void> _fireSimpleEvent() async {
-    await SeniorObservability.logEvent(SeniorEvents.buttonClicked.value);
-    _addLog('Evento: ${SeniorEvents.buttonClicked.value}');
-  }
-
-  Future<void> _fireEventWithParams() async {
-    await SeniorObservability.logEvent(
-      'purchase_completed',
-      params: {
-        'product_id': 'abc123',
-        'value': 99.90,
-        'tenant': 'senior',
-      },
-    );
-    _addLog('Evento: purchase_completed (com params)');
-  }
-
-  Future<void> _fireScreenEvent() async {
-    await SeniorObservability.logScreen('EventsScreen_manual');
-    _addLog('Screen: EventsScreen_manual');
-  }
-
-  Future<void> _fireLoginEvent() async {
-    await SeniorObservability.logEvent(
-      SeniorEvents.loginSuccess.value,
-      params: {'method': 'email'},
-    );
-    _addLog('Evento: ${SeniorEvents.loginSuccess.value}');
-  }
-
-  Future<void> _fireApiErrorEvent() async {
-    await SeniorObservability.logEvent(
-      'api_error',
-      params: {
-        'endpoint': '/api/v1/data',
-        'status_code': 500,
-      },
-    );
-    _addLog('Evento: api_error');
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eventos'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Eventos'), centerTitle: true),
       body: Column(
         children: [
           Padding(
@@ -75,27 +27,27 @@ class _EventsScreenState extends State<EventsScreen>
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  onPressed: _fireSimpleEvent,
+                  onPressed: _simpleEvent,
                   icon: const Icon(Icons.touch_app),
                   label: const Text('Evento Simples'),
                 ),
                 FilledButton.tonalIcon(
-                  onPressed: _fireEventWithParams,
+                  onPressed: _eventWithParams,
                   icon: const Icon(Icons.shopping_cart),
                   label: const Text('Com Params'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: _fireScreenEvent,
+                  onPressed: _screenEvent,
                   icon: const Icon(Icons.screen_share),
                   label: const Text('Screen'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: _fireLoginEvent,
+                  onPressed: _loginEvent,
                   icon: const Icon(Icons.login),
                   label: const Text('Login'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: _fireApiErrorEvent,
+                  onPressed: _apiErrorEvent,
                   icon: const Icon(Icons.warning_amber),
                   label: const Text('API Error'),
                 ),
@@ -107,10 +59,7 @@ class _EventsScreenState extends State<EventsScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                Text(
-                  'Log de eventos',
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text('Log de eventos', style: theme.textTheme.titleSmall),
                 const Spacer(),
                 if (_logs.isNotEmpty)
                   TextButton(
@@ -153,5 +102,43 @@ class _EventsScreenState extends State<EventsScreen>
         ],
       ),
     );
+  }
+
+  void _addLog(String message) {
+    setState(() => _logs.insert(0, message));
+  }
+
+  Future<void> _simpleEvent() async {
+    await SeniorObservability.logEvent(SeniorEvents.buttonClicked.value);
+    _addLog('Evento: ${SeniorEvents.buttonClicked.value}');
+  }
+
+  Future<void> _eventWithParams() async {
+    await SeniorObservability.logEvent(
+      'purchase_completed',
+      params: {'product_id': 'abc123', 'value': 99.90, 'tenant': 'senior'},
+    );
+    _addLog('Evento: purchase_completed (com params)');
+  }
+
+  Future<void> _screenEvent() async {
+    await SeniorObservability.logScreen('EventsScreen_manual');
+    _addLog('Screen: EventsScreen_manual');
+  }
+
+  Future<void> _loginEvent() async {
+    await SeniorObservability.logEvent(
+      SeniorEvents.loginSuccess.value,
+      params: {'method': 'email'},
+    );
+    _addLog('Evento: ${SeniorEvents.loginSuccess.value}');
+  }
+
+  Future<void> _apiErrorEvent() async {
+    await SeniorObservability.logEvent(
+      'api_error',
+      params: {'endpoint': '/api/v1/data', 'status_code': 500},
+    );
+    _addLog('Evento: api_error');
   }
 }

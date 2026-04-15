@@ -15,82 +15,19 @@ class _TraceScreenState extends State<TraceScreen>
   bool _running = false;
   String? _result;
 
-  Future<void> _runTrace() async {
-    setState(() {
-      _running = true;
-      _result = null;
-    });
-
-    final stopwatch = Stopwatch()..start();
-
-    await SeniorObservability.trace('checkout_flow', () async {
-      await Future<void>.delayed(const Duration(seconds: 2));
-    });
-
-    stopwatch.stop();
-
-    setState(() {
-      _running = false;
-      _result = 'Trace "checkout_flow" concluído em '
-          '${stopwatch.elapsedMilliseconds}ms';
-    });
-  }
-
-  Future<void> _runHttpTrace() async {
-    setState(() {
-      _running = true;
-      _result = null;
-    });
-
-    final stopwatch = Stopwatch()..start();
-    final client = SeniorHttpClient();
-
-    try {
-      await SeniorObservability.trace('http_users_fetch', () async {
-        final response = await client.get(
-          Uri.parse('https://dummyjson.com/users?limit=10'),
-        );
-        return response;
-      });
-
-      stopwatch.stop();
-
-      setState(() {
-        _running = false;
-        _result = 'Trace "http_users_fetch" concluído em '
-            '${stopwatch.elapsedMilliseconds}ms';
-      });
-    } catch (e) {
-      stopwatch.stop();
-      setState(() {
-        _running = false;
-        _result = 'Erro: $e (${stopwatch.elapsedMilliseconds}ms)';
-      });
-    } finally {
-      client.close();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Trace'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Trace'), centerTitle: true),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.timer,
-                size: 64,
-                color: theme.colorScheme.primary,
-              ),
+              Icon(Icons.timer, size: 64, color: theme.colorScheme.primary),
               const SizedBox(height: 24),
               Text(
                 'Traces Customizados',
@@ -158,5 +95,63 @@ class _TraceScreenState extends State<TraceScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _runTrace() async {
+    setState(() {
+      _running = true;
+      _result = null;
+    });
+
+    final stopwatch = Stopwatch()..start();
+
+    await SeniorObservability.trace('checkout_flow', () async {
+      await Future<void>.delayed(const Duration(seconds: 2));
+    });
+
+    stopwatch.stop();
+
+    setState(() {
+      _running = false;
+      _result =
+          'Trace "checkout_flow" concluído em '
+          '${stopwatch.elapsedMilliseconds}ms';
+    });
+  }
+
+  Future<void> _runHttpTrace() async {
+    setState(() {
+      _running = true;
+      _result = null;
+    });
+
+    final stopwatch = Stopwatch()..start();
+    final client = SeniorHttpClient();
+
+    try {
+      await SeniorObservability.trace('http_users_fetch', () async {
+        final response = await client.get(
+          Uri.parse('https://dummyjson.com/users?limit=10'),
+        );
+        return response;
+      });
+
+      stopwatch.stop();
+
+      setState(() {
+        _running = false;
+        _result =
+            'Trace "http_users_fetch" concluído em '
+            '${stopwatch.elapsedMilliseconds}ms';
+      });
+    } catch (e) {
+      stopwatch.stop();
+      setState(() {
+        _running = false;
+        _result = 'Erro: $e (${stopwatch.elapsedMilliseconds}ms)';
+      });
+    } finally {
+      client.close();
+    }
   }
 }
