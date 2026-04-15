@@ -421,32 +421,51 @@ SeniorLogger.adapter = MyLogAdapter();
 
 ```
 lib/
+├── senior_observability.dart                         Barrel file principal
 └── src/
     ├── contracts/
-    │   ├── observability_provider.dart          IObservabilityProvider (abstract interface class)
-    │   ├── trace_handle.dart                    ITraceHandle (abstract interface class)
-    │   └── http_trace_handle.dart               IHttpTraceHandle (abstract interface class)
+    │   ├── contracts.dart                            Barrel file
+    │   ├── observability_provider_interface.dart      IObservabilityProvider (abstract interface class)
+    │   ├── trace_handle_interface.dart                ITraceHandle (abstract interface class)
+    │   └── http_trace_handle_interface.dart           IHttpTraceHandle (abstract interface class)
     ├── composite/
-    │   ├── composite_observability_provider.dart CompositeObservabilityProvider (final class)
-    │   ├── _composite_trace_handle.dart          part — composite trace handle
-    │   └── _composite_http_trace_handle.dart     part — composite HTTP trace handle
+    │   ├── composite.dart                            Barrel file
+    │   ├── composite_observability_provider.dart      CompositeObservabilityProvider (final class)
+    │   ├── _composite_trace_handle.dart               part — composite trace handle
+    │   └── _composite_http_trace_handle.dart          part — composite HTTP trace handle
     ├── logger/
-    │   ├── log_adapter.dart                     ILogAdapter (abstract interface class)
-    │   ├── logger_log_adapter.dart              LoggerLogAdapter (final class)
-    │   └── senior_logger.dart                   SeniorLogger (final class)
+    │   ├── logger.dart                               Barrel file
+    │   ├── log_adapter.dart                           ILogAdapter (abstract interface class)
+    │   ├── logger_log_adapter.dart                    LoggerILogAdapter (final class)
+    │   └── senior_logger.dart                         SeniorLogger (final class)
     ├── models/
-    │   ├── senior_user.dart                     SeniorUser (final class)
-    │   └── senior_events.dart                   SeniorEvents (enum)
+    │   ├── models.dart                               Barrel file
+    │   ├── senior_user.dart                           SeniorUser (final class)
+    │   └── senior_events.dart                         SeniorEvents (enum)
     ├── providers/
-    │   ├── firebase_observability_provider.dart  FirebaseObservabilityProvider (final class)
-    │   └── sentry_observability_provider.dart    SentryObservabilityProvider (final class)
+    │   ├── providers.dart                            Barrel file
+    │   ├── firebase/
+    │   │   ├── firebase.dart                          Barrel file
+    │   │   ├── firebase_observability_provider.dart    FirebaseObservabilityProvider (final class)
+    │   │   ├── _firebase_trace_handle.dart             part — Firebase trace handle
+    │   │   ├── _firebase_http_trace_handle.dart        part — Firebase HTTP trace handle
+    │   │   └── _string_take_extension.dart             part — String extension
+    │   └── sentry/
+    │       ├── sentry.dart                            Barrel file
+    │       ├── sentry_observability_provider.dart      SentryObservabilityProvider (final class)
+    │       ├── _sentry_trace_handle.dart               part — Sentry trace handle
+    │       └── _sentry_http_trace_handle.dart          part — Sentry HTTP trace handle
     ├── navigation/
-    │   ├── senior_navigator_observer.dart        SeniorNavigatorObserver (final class)
+    │   ├── navigation.dart                           Barrel file
+    │   ├── senior_navigator_observer.dart             SeniorNavigatorObserver (final class)
     │   └── mixins/
-    │       ├── senior_screen_observer.dart        SeniorScreenObserver (mixin)
-    │       └── senior_stateless_screen_observer.dart SeniorStatelessScreenObserver (mixin)
-    └── senior_observability_facade.dart          SeniorObservability (final class)
+    │       ├── mixins.dart                            Barrel file
+    │       ├── senior_screen_observer.dart             SeniorScreenObserver (mixin)
+    │       └── senior_stateless_screen_observer.dart   SeniorStatelessScreenObserver (mixin)
+    └── senior_observability_facade.dart               SeniorObservability (final class)
 ```
+
+Cada pasta possui um **barrel file** que centraliza os exports, simplificando os imports internos e externos.
 
 > O package **não inclui** nenhuma dependência de HTTP client.
 > A instrumentação de requisições é feita via `SeniorObservability.startHttpTrace()` + `IHttpTraceHandle`,
@@ -454,8 +473,8 @@ lib/
 
 ## Princípios
 
-- **Strategy Pattern** — cada provider encapsula um comportamento específico
+- **Facade Pattern** — `SeniorObservability` é o ponto de entrada único que simplifica toda a API de observabilidade
+- **Strategy Pattern** — cada provider encapsula um comportamento específico atrás de `IObservabilityProvider`
 - **Composite Pattern** — delegação transparente para múltiplos providers em paralelo
 - **Adapter Pattern** — logging desacoplado, substituível sem alterar o core
 - **Open/Closed** — extensível via novos providers, sem alterar código existente
-- **Documentação completa** — toda classe pública tem `///` doc comments em inglês
