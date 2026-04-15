@@ -466,8 +466,6 @@ lib/
     └── senior_observability_facade.dart               SeniorObservability (final class)
 ```
 
-Cada pasta possui um **barrel file** que centraliza os exports, simplificando os imports internos e externos.
-
 > O package **não inclui** nenhuma dependência de HTTP client.
 > A instrumentação de requisições é feita via `SeniorObservability.startHttpTrace()` + `IHttpTraceHandle`,
 > compatível com qualquer lib (http, dio, chopper, etc.).
