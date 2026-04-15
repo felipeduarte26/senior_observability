@@ -30,7 +30,7 @@ O package aplica os padrões **Strategy**, **Composite** e **Adapter**:
 
 ### 1. Inicialização
 
-Chame `SeniorObservability.init()` no `main()` como único ponto de entrada. O `appRunner` substitui a chamada manual ao `runApp()`, garantindo que todos os providers e error handlers estejam configurados **antes** do primeiro frame:
+Chame `SeniorObservability.init()` no `main()` como único ponto de entrada. O `appRunner` substitui a chamada manual ao `runApp()`:
 
 ```dart
 import 'package:senior_observability/senior_observability.dart';
