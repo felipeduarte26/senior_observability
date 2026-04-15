@@ -14,27 +14,6 @@ class _LoginScreenState extends State<LoginScreen>
   final _nameController = TextEditingController(text: 'Felipe');
   bool _loading = false;
 
-  Future<void> _login() async {
-    setState(() => _loading = true);
-
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-
-    await SeniorObservability.setUser(SeniorUser(
-      tenant: 'senior',
-      email: _emailController.text,
-      name: _nameController.text.isEmpty ? null : _nameController.text,
-    ));
-
-    await SeniorObservability.logEvent(
-      SeniorEvents.loginSuccess.value,
-      params: {'email': _emailController.text},
-    );
-
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    }
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -55,19 +34,6 @@ class _LoginScreenState extends State<LoginScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.visibility_rounded,
-                  size: 72,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Senior Observability',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 Text(
                   'Sample App',
                   style: theme.textTheme.bodyLarge?.copyWith(
@@ -114,5 +80,28 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _login() async {
+    setState(() => _loading = true);
+
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+
+    await SeniorObservability.setUser(
+      SeniorUser(
+        tenant: 'senior',
+        email: _emailController.text,
+        name: _nameController.text.isEmpty ? null : _nameController.text,
+      ),
+    );
+
+    await SeniorObservability.logEvent(
+      SeniorEvents.loginSuccess.value,
+      params: {'email': _emailController.text},
+    );
+
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
   }
 }
