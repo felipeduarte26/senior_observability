@@ -4,7 +4,7 @@ Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlyt
 
 ## Arquitetura
 
-O package aplica os padrões **Strategy**, **Composite** e **Adapter**:
+O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter**:
 
 ```
 ┌─────────────────────────────────────────────────────┐
