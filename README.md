@@ -23,6 +23,7 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
     └─────────────┘  └────────────────┘
 ```
 
+- `SeniorObservability` é o ponto de entrada único que simplifica toda a API (**Facade**)
 - Cada provider implementa `IObservabilityProvider` (**Strategy**)
 - O `CompositeObservabilityProvider` agrega N providers e delega para todos em paralelo (**Composite**)
 - O logging interno usa `ILogAdapter` desacoplado do `package:logger` (**Adapter**)
