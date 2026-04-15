@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'log_adapter.dart';
 import 'logger_log_adapter.dart';
 
+
 /// Logging facade for the Senior Observability package.
 ///
 /// Only emits logs when [enabled] is `true` **and** the app is running

@@ -1,9 +1,9 @@
-import '../models/senior_user.dart';
-import 'http_trace_handle.dart';
-import 'trace_handle.dart';
+import '../models/models.dart';
+import 'http_trace_handle_interface.dart';
+import 'trace_handle_interface.dart';
 
-export 'http_trace_handle.dart';
-export 'trace_handle.dart';
+export 'http_trace_handle_interface.dart';
+export 'trace_handle_interface.dart';
 
 /// Contract that every observability provider must implement.
 ///

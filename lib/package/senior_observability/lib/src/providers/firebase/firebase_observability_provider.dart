@@ -3,17 +3,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 
-import '../contracts/observability_provider.dart';
-import '../logger/senior_logger.dart';
-import '../models/senior_user.dart';
+import '../../contracts/contracts.dart';
+import '../../logger/logger.dart';
+import '../../models/models.dart';
+
+part '_firebase_trace_handle.dart';
+part '_firebase_http_trace_handle.dart';
+part '_string_take_extension.dart';
 
 /// Observability provider backed by Firebase.
-
+///
+/// Integrates Firebase Analytics, Crashlytics and Performance into a
+/// single [IObservabilityProvider] implementation.
+///
+/// ```dart
+/// final provider = FirebaseObservabilityProvider();
+/// await provider.init();
+/// ```
 final class FirebaseObservabilityProvider implements IObservabilityProvider {
   /// Firebase configuration options.
-  ///
-  /// When `null`, the default platform config is used
-  /// (google-services.json / GoogleService-Info.plist).
   final FirebaseOptions? options;
 
   late final FirebaseAnalytics _analytics;
@@ -70,24 +78,21 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
   Future<void> logScreen(
     String screenName, {
     Map<String, dynamic>? params,
-  }) async {
-    await _analytics.logScreenView(
-      screenName: screenName,
-      screenClass: screenName,
-      parameters: _sanitizeParams(params),
-    );
-  }
+  }) async => await _analytics.logScreenView(
+    screenName: screenName,
+    screenClass: screenName,
+    parameters: _sanitizeParams(params),
+  );
 
   @override
-  Future<void> logError(dynamic exception, StackTrace? stackTrace) async {
-    await _crashlytics.recordError(exception, stackTrace, fatal: false);
-  }
+  Future<void> logError(dynamic exception, StackTrace? stackTrace) async =>
+      await _crashlytics.recordError(exception, stackTrace, fatal: false);
 
   @override
   Future<ITraceHandle?> startTrace(String name) async {
     final trace = _performance.newTrace(name);
     await trace.start();
-    return _FirebaseITraceHandle(trace);
+    return _FirebaseTraceHandle(trace);
   }
 
   @override
@@ -98,7 +103,7 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
     final httpMethod = _parseHttpMethod(method);
     final metric = _performance.newHttpMetric(url, httpMethod);
     await metric.start();
-    return _FirebaseIHttpTraceHandle(metric);
+    return _FirebaseHttpTraceHandle(metric);
   }
 
   @override
@@ -109,55 +114,11 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
     return params.map((key, value) => MapEntry(key, value as Object));
   }
 
-  HttpMethod _parseHttpMethod(String method) {
-    return switch (method.toUpperCase()) {
-      'POST' => HttpMethod.Post,
-      'PUT' => HttpMethod.Put,
-      'DELETE' => HttpMethod.Delete,
-      'PATCH' => HttpMethod.Patch,
-      _ => HttpMethod.Get,
-    };
-  }
-}
-
-/// Firebase Performance [Trace] wrapper implementing [ITraceHandle].
-final class _FirebaseITraceHandle implements ITraceHandle {
-  final Trace _trace;
-
-  _FirebaseITraceHandle(this._trace);
-
-  @override
-  Future<void> stop({dynamic error}) async {
-    if (error != null) {
-      _trace.putAttribute('error', error.toString().take(100));
-    }
-    await _trace.stop();
-  }
-}
-
-/// Firebase Performance [HttpMetric] wrapper implementing [IHttpTraceHandle].
-final class _FirebaseIHttpTraceHandle implements IHttpTraceHandle {
-  final HttpMetric _metric;
-
-  _FirebaseIHttpTraceHandle(this._metric);
-
-  @override
-  Future<void> stop({
-    int? responseCode,
-    int? requestPayloadSize,
-    int? responsePayloadSize,
-  }) async {
-    if (responseCode != null) _metric.httpResponseCode = responseCode;
-    if (requestPayloadSize != null) {
-      _metric.requestPayloadSize = requestPayloadSize;
-    }
-    if (responsePayloadSize != null) {
-      _metric.responsePayloadSize = responsePayloadSize;
-    }
-    await _metric.stop();
-  }
-}
-
-extension _StringTake on String {
-  String take(int n) => length <= n ? this : substring(0, n);
+  HttpMethod _parseHttpMethod(String method) => switch (method.toUpperCase()) {
+    'POST' => HttpMethod.Post,
+    'PUT' => HttpMethod.Put,
+    'DELETE' => HttpMethod.Delete,
+    'PATCH' => HttpMethod.Patch,
+    _ => HttpMethod.Get,
+  };
 }

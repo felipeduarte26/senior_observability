@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'composite/composite_observability_provider.dart';
-import 'contracts/observability_provider.dart';
-import 'logger/senior_logger.dart';
-import 'models/senior_user.dart';
+import 'composite/composite.dart';
+import 'contracts/contracts.dart';
+import 'logger/logger.dart';
+import 'models/models.dart';
 
 /// Callback that starts the application (typically `() => runApp(MyApp())`).
 typedef AppRunner = FutureOr<void> Function();

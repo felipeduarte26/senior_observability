@@ -1,6 +1,6 @@
-import '../contracts/observability_provider.dart';
-import '../logger/senior_logger.dart';
-import '../models/senior_user.dart';
+import '../contracts/contracts.dart';
+import '../logger/logger.dart';
+import '../models/models.dart';
 
 part '_composite_trace_handle.dart';
 part '_composite_http_trace_handle.dart';
@@ -9,9 +9,6 @@ part '_composite_http_trace_handle.dart';
 ///
 /// Implements the **Composite pattern**: every call is delegated to all
 /// registered providers **in parallel** via [Future.wait].
-///
-/// Individual provider failures are caught silently so that one
-/// broken provider never crashes the host application.
 ///
 /// ```dart
 /// final composite = CompositeObservabilityProvider([
@@ -67,9 +64,7 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
       _execute((p) => p.logError(exception, stackTrace), 'log error');
 
   /// Starts a custom trace on all providers in parallel.
-  ///
-  /// Returns a [_CompositeITraceHandle] that wraps the handles from each
-  /// provider, or `null` if no provider returned a valid handle.
+
   @override
   Future<ITraceHandle?> startTrace(String name) async {
     final results = await Future.wait(
@@ -93,9 +88,7 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
   }
 
   /// Starts an HTTP trace on all providers in parallel.
-  ///
-  /// Returns a [_CompositeIHttpTraceHandle] that wraps the handles from each
-  /// provider, or `null` if no provider returned a valid handle.
+
   @override
   Future<IHttpTraceHandle?> startHttpTrace({
     required String url,

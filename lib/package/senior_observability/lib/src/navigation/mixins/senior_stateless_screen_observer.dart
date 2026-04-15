@@ -3,13 +3,6 @@ import 'package:flutter/widgets.dart';
 import '../../senior_observability_facade.dart';
 
 /// Mixin for [StatelessWidget] that automatically logs screen views
-/// via [WidgetsBinding.instance.addPostFrameCallback].
-///
-/// The event fires only **once** per [Element] instance, ensuring
-/// that widget rebuilds do not produce duplicate logs.
-///
-/// The [screenName] is captured via `runtimeType.toString()` by default.
-/// Override it to provide a custom name.
 ///
 /// **Important**: implement [buildScreen] instead of [build]:
 /// ```dart
