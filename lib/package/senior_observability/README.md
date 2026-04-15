@@ -23,11 +23,13 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
     └─────────────┘  └────────────────┘
 ```
 
-- `SeniorObservability` é o ponto de entrada único que simplifica toda a API (**Facade**)
-- Cada provider implementa `IObservabilityProvider` (**Strategy**)
-- O `CompositeObservabilityProvider` agrega N providers e delega para todos em paralelo (**Composite**)
-- O logging interno usa `ILogAdapter` desacoplado do `package:logger` (**Adapter**)
-- Novos providers podem ser adicionados sem alterar código existente (**Open/Closed**)
+## Princípios
+
+- **Facade Pattern** — `SeniorObservability` é o ponto de entrada único que simplifica toda a API de observabilidade
+- **Strategy Pattern** — cada provider encapsula um comportamento específico atrás de `IObservabilityProvider`
+- **Composite Pattern** — delegação transparente para múltiplos providers em paralelo
+- **Adapter Pattern** — logging desacoplado, substituível sem alterar o core
+- **Open/Closed** — extensível via novos providers, sem alterar código existente
 
 ### 1. Inicialização
 
@@ -469,11 +471,3 @@ lib/
 > O package **não inclui** nenhuma dependência de HTTP client.
 > A instrumentação de requisições é feita via `SeniorObservability.startHttpTrace()` + `IHttpTraceHandle`,
 > compatível com qualquer lib (http, dio, chopper, etc.).
-
-## Princípios
-
-- **Facade Pattern** — `SeniorObservability` é o ponto de entrada único que simplifica toda a API de observabilidade
-- **Strategy Pattern** — cada provider encapsula um comportamento específico atrás de `IObservabilityProvider`
-- **Composite Pattern** — delegação transparente para múltiplos providers em paralelo
-- **Adapter Pattern** — logging desacoplado, substituível sem alterar o core
-- **Open/Closed** — extensível via novos providers, sem alterar código existente
