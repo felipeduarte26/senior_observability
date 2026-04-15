@@ -147,7 +147,7 @@ Após `SeniorObservability.init()`, os seguintes erros são capturados automatic
 
 ## Firebase Performance
 
-### Métricas HTTP (agnóstico de lib)
+### Métricas HTTP
 
 API genérica via `SeniorObservability.startHttpTrace()` e `IHttpTraceHandle`,
 que pode ser integrada a qualquer client Http.
