@@ -10,6 +10,11 @@ class SeniorHttpClient extends http.BaseClient {
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    request.headers.putIfAbsent(
+      'User-Agent',
+      () => 'SeniorObservabilityApp/1.0',
+    );
+
     final traceHandle = await SeniorObservability.startHttpTrace(
       url: request.url.toString(),
       method: request.method,

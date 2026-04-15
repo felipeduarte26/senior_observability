@@ -97,6 +97,7 @@ final class SeniorObservability {
   }) async {
     try {
       await _composite?.logEvent(name, params: params);
+      SeniorLogger.info('Event logged: "$name"');
     } catch (e, s) {
       SeniorLogger.error(
         'Failed to log event "$name".',
@@ -117,6 +118,7 @@ final class SeniorObservability {
   }) async {
     try {
       await _composite?.logScreen(screenName, params: params);
+      SeniorLogger.info('Screen logged: "$screenName"');
     } catch (e, s) {
       SeniorLogger.error(
         'Failed to log screen "$screenName".',
@@ -141,6 +143,7 @@ final class SeniorObservability {
   ) async {
     try {
       await _composite?.logError(exception, stackTrace);
+      SeniorLogger.info('Error reported to providers.');
     } catch (e, s) {
       SeniorLogger.error('Failed to log error.', error: e, stackTrace: s);
     }

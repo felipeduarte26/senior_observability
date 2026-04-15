@@ -33,7 +33,6 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
     for (final provider in _providers) {
       try {
         await provider.init();
-        SeniorLogger.info('${provider.runtimeType} initialized successfully.');
       } catch (e, s) {
         SeniorLogger.error(
           'Failed to initialize ${provider.runtimeType}.',

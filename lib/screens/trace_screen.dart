@@ -48,7 +48,7 @@ class _TraceScreenState extends State<TraceScreen>
     try {
       await SeniorObservability.trace('http_users_fetch', () async {
         final response = await client.get(
-          Uri.parse('https://jsonplaceholder.typicode.com/users'),
+          Uri.parse('https://dummyjson.com/users?limit=10'),
         );
         return response;
       });

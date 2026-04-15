@@ -34,11 +34,6 @@ class SeniorObservabilityApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.light,
       ),
-      darkTheme: ThemeData(
-        colorSchemeSeed: const Color(0xFF1A73E8),
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
       navigatorObservers: [SeniorNavigatorObserver()],
       initialRoute: '/login',
       routes: {

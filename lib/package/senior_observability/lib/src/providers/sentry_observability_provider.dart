@@ -23,6 +23,8 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
   /// Environment name (e.g. `'production'`, `'staging'`, `'development'`).
   final String? environment;
 
+  bool _enabled = false;
+
   /// Creates a [SentryObservabilityProvider].
   ///
   /// [dsn] is required and configures the Sentry endpoint.
@@ -33,31 +35,41 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
     this.environment,
   });
 
+  /// Whether the DSN is not empty.
+  bool get _hasDsn => dsn.isNotEmpty;
+
   @override
   Future<void> init() async {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = dsn;
-        options.tracesSampleRate = tracesSampleRate;
-        if (environment != null) {
-          options.environment = environment;
-        }
-        options.attachStacktrace = true;
-        options.enableAutoPerformanceTracing = true;
-      },
-    );
+    if (!_hasDsn) {
+      SeniorLogger.warning('Sentry DSN is empty — provider will be disabled.');
+      return;
+    }
 
+    await SentryFlutter.init((options) {
+      options.dsn = dsn;
+      options.tracesSampleRate = tracesSampleRate;
+      if (environment != null) {
+        options.environment = environment;
+      }
+      options.attachStacktrace = true;
+      options.enableAutoPerformanceTracing = true;
+    });
+
+    _enabled = true;
     SeniorLogger.info('Sentry initialized (dsn: ${_maskDsn(dsn)}).');
   }
 
   @override
   Future<void> setUser(SeniorUser user) async {
+    if (!_enabled) return;
     Sentry.configureScope((scope) {
-      scope.setUser(SentryUser(
-        email: user.email,
-        username: user.name,
-        data: {'tenant': user.tenant},
-      ));
+      scope.setUser(
+        SentryUser(
+          email: user.email,
+          username: user.name,
+          data: {'tenant': user.tenant},
+        ),
+      );
       scope.setTag('tenant', user.tenant);
       scope.setTag('email', user.email);
       if (user.name != null) {
@@ -68,13 +80,16 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
 
   @override
   Future<void> logEvent(String name, {Map<String, dynamic>? params}) async {
-    Sentry.addBreadcrumb(Breadcrumb(
-      message: name,
-      category: 'event',
-      type: 'info',
-      data: params?.map((k, v) => MapEntry(k, v ?? '')) ?? {},
-      level: SentryLevel.info,
-    ));
+    if (!_enabled) return;
+    Sentry.addBreadcrumb(
+      Breadcrumb(
+        message: name,
+        category: 'event',
+        type: 'info',
+        data: params?.map((k, v) => MapEntry(k, v ?? '')) ?? {},
+        level: SentryLevel.info,
+      ),
+    );
   }
 
   @override
@@ -82,20 +97,24 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
     String screenName, {
     Map<String, dynamic>? params,
   }) async {
-    Sentry.addBreadcrumb(Breadcrumb(
-      message: screenName,
-      category: 'navigation',
-      type: 'navigation',
-      data: {
-        'screen': screenName,
-        ...?params?.map((k, v) => MapEntry(k, v ?? '')),
-      },
-      level: SentryLevel.info,
-    ));
+    if (!_enabled) return;
+    Sentry.addBreadcrumb(
+      Breadcrumb(
+        message: screenName,
+        category: 'navigation',
+        type: 'navigation',
+        data: {
+          'screen': screenName,
+          ...?params?.map((k, v) => MapEntry(k, v ?? '')),
+        },
+        level: SentryLevel.info,
+      ),
+    );
   }
 
   @override
   Future<void> logError(dynamic exception, StackTrace? stackTrace) async {
+    if (!_enabled) return;
     if (exception is FlutterErrorDetails) {
       await Sentry.captureException(
         exception.exception,
@@ -108,6 +127,7 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
 
   @override
   Future<ITraceHandle?> startTrace(String name) async {
+    if (!_enabled) return null;
     final transaction = Sentry.startTransaction(
       name,
       'custom',
@@ -121,6 +141,7 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
     required String url,
     required String method,
   }) async {
+    if (!_enabled) return null;
     final transaction = Sentry.startTransaction(
       '$method $url',
       'http.client',
@@ -131,7 +152,9 @@ final class SentryObservabilityProvider implements IObservabilityProvider {
 
   @override
   Future<void> dispose() async {
+    if (!_enabled) return;
     await Sentry.close();
+    _enabled = false;
   }
 
   String _maskDsn(String dsn) {

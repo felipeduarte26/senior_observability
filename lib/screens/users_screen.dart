@@ -33,12 +33,13 @@ class _UsersScreenState extends State<UsersScreen>
 
     try {
       final response = await _client.get(
-        Uri.parse('https://jsonplaceholder.typicode.com/users'),
+        Uri.parse('https://dummyjson.com/users?limit=10'),
       );
 
       if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
         setState(() {
-          _users = jsonDecode(response.body) as List<dynamic>;
+          _users = body['users'] as List<dynamic>;
           _loading = false;
         });
       } else {
@@ -107,11 +108,12 @@ class _UsersScreenState extends State<UsersScreen>
       itemCount: _users?.length ?? 0,
       itemBuilder: (context, index) {
         final user = _users![index] as Map<String, dynamic>;
+        final fullName = '${user['firstName']} ${user['lastName']}';
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
             leading: CircleAvatar(child: Text('${index + 1}')),
-            title: Text(user['name'] as String),
+            title: Text(fullName),
             subtitle: Text(user['email'] as String),
             trailing: Text(
               user['company']?['name'] as String? ?? '',

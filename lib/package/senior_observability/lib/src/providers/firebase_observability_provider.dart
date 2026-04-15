@@ -46,6 +46,13 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
       _analytics.setUserProperty(name: 'email', value: user.email),
       if (user.name != null)
         _analytics.setUserProperty(name: 'user_name', value: user.name),
+
+      _analytics.setDefaultEventParameters({
+        'tenant': user.tenant,
+        'email': user.email,
+        if (user.name != null) 'user_name': user.name,
+      }),
+
       _crashlytics.setUserIdentifier(user.email),
       _crashlytics.setCustomKey('tenant', user.tenant),
       _crashlytics.setCustomKey('email', user.email),
