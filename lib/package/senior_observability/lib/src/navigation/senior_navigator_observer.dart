@@ -14,9 +14,7 @@ import '../senior_observability_facade.dart';
 ///   navigatorObservers: [SeniorNavigatorObserver()],
 /// );
 /// ```
-///
-/// When `route.settings.name` is null (anonymous routes),
-/// `route.runtimeType.toString()` is used as fallback.
+
 final class SeniorNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {

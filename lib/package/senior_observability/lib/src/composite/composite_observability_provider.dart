@@ -24,15 +24,10 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
   final List<IObservabilityProvider> _providers;
 
   /// Creates a [CompositeObservabilityProvider] with the given [providers].
-  ///
-  /// The list is stored as an unmodifiable copy to prevent external mutation.
   CompositeObservabilityProvider(List<IObservabilityProvider> providers)
     : _providers = List.unmodifiable(providers);
 
-  /// Initializes every registered provider **sequentially**.
-  ///
-  /// Sequential execution is intentional here because providers may depend
-  /// on initialization order (e.g. Firebase must be ready before Crashlytics).
+  /// Initializes every registered provider.
   @override
   Future<void> init() async {
     for (final provider in _providers) {
@@ -57,10 +52,7 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
   /// Logs a custom event to all providers in parallel.
   @override
   Future<void> logEvent(String name, {Map<String, dynamic>? params}) =>
-      _execute(
-        (p) => p.logEvent(name, params: params),
-        'log event "$name"',
-      );
+      _execute((p) => p.logEvent(name, params: params), 'log event "$name"');
 
   /// Logs a screen view to all providers in parallel.
   @override
@@ -132,13 +124,9 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
 
   /// Disposes all providers in parallel, releasing their resources.
   @override
-  Future<void> dispose() =>
-      _execute((p) => p.dispose(), 'dispose provider');
+  Future<void> dispose() => _execute((p) => p.dispose(), 'dispose provider');
 
   /// Executes [action] on every provider concurrently via [Future.wait].
-  ///
-  /// Each provider runs inside its own try/catch so that a single failure
-  /// does not prevent the remaining providers from completing.
   Future<void> _execute(
     Future<void> Function(IObservabilityProvider provider) action,
     String actionName,

@@ -1,10 +1,4 @@
 /// Logging abstraction for the Senior Observability package.
-///
-/// Applies the **Adapter pattern (Target)**: defines the logging contract
-/// without coupling to any external implementation.
-///
-/// To swap the logging library, create a new [ILogAdapter] implementation
-/// and register it via [SeniorLogger.adapter].
 abstract interface class ILogAdapter {
   /// Logs a debug-level message.
   void debug(Object? message, [Object? data]);

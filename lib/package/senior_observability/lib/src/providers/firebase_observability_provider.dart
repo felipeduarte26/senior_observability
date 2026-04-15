@@ -8,13 +8,7 @@ import '../logger/senior_logger.dart';
 import '../models/senior_user.dart';
 
 /// Observability provider backed by Firebase.
-///
-/// Integrates Firebase Analytics, Crashlytics and Performance into a
-/// single [IObservabilityProvider] implementation.
-///
-/// ```dart
-/// FirebaseObservabilityProvider(options: DefaultFirebaseOptions.currentPlatform)
-/// ```
+
 final class FirebaseObservabilityProvider implements IObservabilityProvider {
   /// Firebase configuration options.
   ///
@@ -27,9 +21,6 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
   late final FirebasePerformance _performance;
 
   /// Creates a [FirebaseObservabilityProvider].
-  ///
-  /// [options] allows passing custom Firebase configuration.
-  /// If omitted, the native platform configuration is used.
   FirebaseObservabilityProvider({this.options});
 
   @override
@@ -42,24 +33,24 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
 
     await _crashlytics.setCrashlyticsCollectionEnabled(true);
 
-    SeniorLogger.info('Firebase initialized (Analytics, Crashlytics, Performance).');
+    SeniorLogger.info(
+      'Firebase initialized (Analytics, Crashlytics, Performance).',
+    );
   }
 
   @override
   Future<void> setUser(SeniorUser user) async {
-    await _analytics.setUserId(id: user.email);
-    await _analytics.setUserProperty(name: 'tenant', value: user.tenant);
-    await _analytics.setUserProperty(name: 'email', value: user.email);
-    if (user.name != null) {
-      await _analytics.setUserProperty(name: 'user_name', value: user.name);
-    }
-
-    await _crashlytics.setUserIdentifier(user.email);
-    await _crashlytics.setCustomKey('tenant', user.tenant);
-    await _crashlytics.setCustomKey('email', user.email);
-    if (user.name != null) {
-      await _crashlytics.setCustomKey('name', user.name!);
-    }
+    await Future.wait([
+      _analytics.setUserId(id: user.email),
+      _analytics.setUserProperty(name: 'tenant', value: user.tenant),
+      _analytics.setUserProperty(name: 'email', value: user.email),
+      if (user.name != null)
+        _analytics.setUserProperty(name: 'user_name', value: user.name),
+      _crashlytics.setUserIdentifier(user.email),
+      _crashlytics.setCustomKey('tenant', user.tenant),
+      _crashlytics.setCustomKey('email', user.email),
+      if (user.name != null) _crashlytics.setCustomKey('name', user.name!),
+    ]);
   }
 
   @override

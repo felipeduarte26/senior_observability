@@ -43,17 +43,6 @@ final class SeniorObservability {
 
   /// Initializes Senior Observability with the desired providers and
   /// starts the application.
-  ///
-  /// Must be called in `main()` as the single entry point. The
-  /// [appRunner] callback replaces the manual `runApp()` call, ensuring
-  /// that all providers and global error handlers are configured
-  /// **before** the first frame is rendered.
-  ///
-  /// [providers] — list of providers to initialize (required).
-  /// [appRunner] — callback that starts the app, e.g.
-  /// `() => runApp(const MyApp())` (required).
-  /// [enableLogging] — enables/disables internal package logs in the
-  /// terminal (default: `true`). Logs are always disabled in release mode.
   static Future<void> init({
     required List<IObservabilityProvider> providers,
     required AppRunner appRunner,
@@ -84,9 +73,6 @@ final class SeniorObservability {
   }
 
   /// Sets or updates the current user.
-  ///
-  /// The [SeniorUser.tenant] and [SeniorUser.email] fields are
-  /// automatically sent as context/tags to every provider.
   static Future<void> setUser(SeniorUser user) async {
     try {
       _currentUser = user;
@@ -171,10 +157,7 @@ final class SeniorObservability {
   ///   await updateInventory();
   /// });
   /// ```
-  static Future<T> trace<T>(
-    String name,
-    Future<T> Function() block,
-  ) async {
+  static Future<T> trace<T>(String name, Future<T> Function() block) async {
     final handle = await _startTraceSafe(name);
     try {
       final result = await block();

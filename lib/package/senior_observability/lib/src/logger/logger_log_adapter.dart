@@ -4,13 +4,9 @@ import 'package:logger/logger.dart';
 
 import 'log_adapter.dart';
 
-/// [ILogAdapter] implementation backed by `package:logger`.
-///
 /// Applies the **Adapter pattern (Adapter)**: adapts the `package:logger`
 /// interface to the [ILogAdapter] contract used by the package.
 ///
-/// Uses [_DeveloperLogOutput] to route output through `dart:developer`
-/// instead of `print()`.
 final class LoggerILogAdapter implements ILogAdapter {
   final Logger _logger = Logger(
     output: _DeveloperLogOutput(),
