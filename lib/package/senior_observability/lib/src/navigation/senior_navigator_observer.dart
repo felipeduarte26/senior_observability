@@ -41,8 +41,6 @@ final class SeniorNavigatorObserver extends NavigatorObserver {
   void _logRoute(Route<dynamic> route, String action) {
     final screenName = route.settings.name ?? route.runtimeType.toString();
 
-    SeniorLogger.info('Navigation [$action]: $screenName');
-
     SeniorObservability.logScreen(screenName, params: {'action': action});
   }
 }

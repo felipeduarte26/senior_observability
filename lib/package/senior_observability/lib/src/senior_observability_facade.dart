@@ -118,7 +118,7 @@ final class SeniorObservability {
   }) async {
     try {
       await _composite?.logScreen(screenName, params: params);
-      SeniorLogger.info('Screen logged: "$screenName"');
+      SeniorLogger.info('Screen loaded : "$screenName"');
     } catch (e, s) {
       SeniorLogger.error(
         'Failed to log screen "$screenName".',
