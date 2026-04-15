@@ -8,7 +8,7 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                SeniorObservability                  │  ← Fachada estática
+│                SeniorObservability                  │
 │                   (Facade)                          │
 └──────────────────────┬──────────────────────────────┘
                        │
