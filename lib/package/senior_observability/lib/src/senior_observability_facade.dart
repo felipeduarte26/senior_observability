@@ -11,7 +11,7 @@ import 'models/models.dart';
 /// Main facade of the Senior Observability package.
 ///
 /// Single entry point for all observability operations.
-/// Aggregates multiple providers (Firebase, Sentry, etc.) through the
+/// Aggregates multiple providers through the
 /// Composite pattern and delegates every call to all of them.
 ///
 /// ```dart
@@ -54,62 +54,84 @@ final class SeniorObservability {
   /// wrap the [appRunner] inside their own initialization, enabling
   /// SDK-specific error capturing and performance monitoring.
   /// All other providers are initialized via their plain [init] method.
+  ///
+  /// The entire initialization and [appRunner] execute inside the same
+  /// guarded zone so that [WidgetsFlutterBinding.ensureInitialized] and
+  /// [runApp] share the same zone — avoiding Flutter's "Zone mismatch"
+  /// warning.
   static Future<void> init({
     required List<IObservabilityProvider> providers,
     required AppRunner appRunner,
     bool enableLogging = true,
   }) async {
     var appRunnerExecuted = false;
+    final completer = Completer<void>();
 
-    try {
-      WidgetsFlutterBinding.ensureInitialized();
-      SeniorLogger.enabled = enableLogging;
+    runZonedGuarded(() async {
+      try {
+        WidgetsFlutterBinding.ensureInitialized();
+        SeniorLogger.enabled = enableLogging;
 
-      _composite = CompositeObservabilityProvider(providers);
+        _composite = CompositeObservabilityProvider(providers);
 
-      for (final provider in providers.where(
-        (p) => p is! IAppRunnerAwareProvider,
-      )) {
-        try {
-          await provider.init();
-        } catch (e, s) {
-          SeniorLogger.error(
-            'Failed to initialize ${provider.runtimeType}.',
-            error: e,
-            stackTrace: s,
-          );
+        for (final provider in providers.where(
+          (p) => p is! IAppRunnerAwareProvider,
+        )) {
+          try {
+            await provider.init();
+          } catch (e, s) {
+            SeniorLogger.error(
+              'Failed to initialize ${provider.runtimeType}.',
+              error: e,
+              stackTrace: s,
+            );
+          }
         }
+
+        _setupGlobalErrorHandlers();
+        _initialized = true;
+
+        SeniorLogger.info(
+          'SeniorObservability initialized with ${providers.length} provider(s).',
+        );
+
+        AppRunner trackedRunner = () {
+          if (appRunnerExecuted) return;
+          appRunnerExecuted = true;
+          appRunner();
+        };
+
+        for (final provider
+            in providers.whereType<IAppRunnerAwareProvider>()) {
+          final currentRunner = trackedRunner;
+          trackedRunner = () => provider.initWithAppRunner(currentRunner);
+        }
+
+        await trackedRunner();
+      } catch (e, s) {
+        SeniorLogger.error(
+          'Failed to initialize SeniorObservability.',
+          error: e,
+          stackTrace: s,
+        );
+
+        if (!appRunnerExecuted) {
+          try {
+            await appRunner();
+          } catch (runError, runStack) {
+            SeniorLogger.error(
+              'AppRunner also failed.',
+              error: runError,
+              stackTrace: runStack,
+            );
+          }
+        }
+      } finally {
+        if (!completer.isCompleted) completer.complete();
       }
+    }, _onUncaughtZoneError);
 
-      _setupGlobalErrorHandlers();
-      _initialized = true;
-
-      SeniorLogger.info(
-        'SeniorObservability initialized with ${providers.length} provider(s).',
-      );
-
-      AppRunner trackedRunner = () {
-        appRunnerExecuted = true;
-        runZonedGuarded(() => appRunner(), _onUncaughtZoneError);
-      };
-
-      for (final provider in providers.whereType<IAppRunnerAwareProvider>()) {
-        final currentRunner = trackedRunner;
-        trackedRunner = () => provider.initWithAppRunner(currentRunner);
-      }
-
-      await trackedRunner();
-    } catch (e, s) {
-      SeniorLogger.error(
-        'Failed to initialize SeniorObservability.',
-        error: e,
-        stackTrace: s,
-      );
-
-      if (!appRunnerExecuted) {
-        await appRunner();
-      }
-    }
+    return completer.future;
   }
 
   static void _setupGlobalErrorHandlers() {
@@ -275,6 +297,9 @@ final class SeniorObservability {
     }
   }
 
+  /// Starts a trace on the composite provider.
+  ///
+  /// Returns `null` if the composite provider does not support traces.
   static Future<ITraceHandle?> _startTraceSafe(String name) async {
     try {
       return await _composite?.startTrace(name);
