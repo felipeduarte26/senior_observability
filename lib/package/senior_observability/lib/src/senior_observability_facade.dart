@@ -41,18 +41,6 @@ final class SeniorObservability {
   /// Initializes Senior Observability with the desired providers and
   /// starts the application inside a guarded error zone.
   ///
-  /// Three layers of error capture are configured:
-  ///
-  /// 1. **[runZonedGuarded]** — catches uncaught errors in Futures,
-  ///    Streams, microtasks and synchronous code within the Dart zone.
-  /// 2. **[PlatformDispatcher.instance.onError]** — catches errors at
-  ///    the Flutter engine level and in the root zone.
-  /// 3. **[FlutterError.onError]** — catches Flutter framework errors
-  ///    (rendering, layout, etc.).
-  ///
-  /// Providers that implement [IAppRunnerAwareProvider] (e.g. Sentry) will
-  /// wrap the [appRunner] inside their own initialization, enabling
-  /// SDK-specific error capturing and performance monitoring.
   /// All other providers are initialized via their plain [init] method.
   ///
   /// The entire initialization and [appRunner] execute inside the same
@@ -101,8 +89,7 @@ final class SeniorObservability {
           appRunner();
         };
 
-        for (final provider
-            in providers.whereType<IAppRunnerAwareProvider>()) {
+        for (final provider in providers.whereType<IAppRunnerAwareProvider>()) {
           final currentRunner = trackedRunner;
           trackedRunner = () => provider.initWithAppRunner(currentRunner);
         }
