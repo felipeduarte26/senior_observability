@@ -1,6 +1,6 @@
 # Senior Observability
 
-Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlytics, Performance), **Microsoft Clarity** (Session Replay, Heatmaps) e **Sentry** (Error Tracking) em uma interface única e desacoplada.
+Package Flutter de observabilidade que integra **Firebase**, **Microsoft Clarity** e **Sentry** em uma interface única e desacoplada.
 
 ## Arquitetura
 
