@@ -8,6 +8,25 @@ import '../../models/models.dart';
 part '_sentry_trace_handle.dart';
 part '_sentry_http_trace_handle.dart';
 
+/// Builds a custom fingerprint for Sentry issue grouping.
+///
+/// Receives the [exception] and its [stackTrace]. Return a non-empty list
+/// of strings to override Sentry's default grouping, or `null` to keep it.
+///
+/// ```dart
+/// SentryObservabilityProvider(
+///   dsn: '...',
+///   fingerprintBuilder: (exception, stackTrace) {
+///     if (exception is HttpException) {
+///       return ['http-error', exception.uri.host, '${exception.statusCode}'];
+///     }
+///     return null; // default Sentry grouping
+///   },
+/// );
+/// ```
+typedef SentryFingerprintBuilder =
+    List<String>? Function(dynamic exception, StackTrace? stackTrace);
+
 /// Observability provider backed by Sentry.
 ///
 /// Integrates Sentry error tracking, breadcrumbs and transactions into a
@@ -24,6 +43,12 @@ part '_sentry_http_trace_handle.dart';
 /// final provider = SentryObservabilityProvider(
 ///   dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
 ///   environment: 'production',
+///   fingerprintBuilder: (exception, stackTrace) {
+///     if (exception is MyApiException) {
+///       return ['api-error', exception.endpoint, '${exception.statusCode}'];
+///     }
+///     return null;
+///   },
 /// );
 /// await provider.init();
 /// ```
@@ -38,6 +63,14 @@ final class SentryObservabilityProvider
   /// Environment name (e.g. `'production'`, `'staging'`, `'development'`).
   final String? environment;
 
+  /// Optional callback that controls how Sentry groups errors into issues.
+  ///
+  /// When provided, it is called for every [logError] invocation. If it
+  /// returns a non-empty list, that list is set as the Sentry fingerprint
+  /// on the event scope — overriding the default stack-trace based grouping.
+  /// Return `null` to keep Sentry's default behavior for that particular error.
+  final SentryFingerprintBuilder? fingerprintBuilder;
+
   bool _enabled = false;
 
   /// Creates a [SentryObservabilityProvider].
@@ -45,6 +78,7 @@ final class SentryObservabilityProvider
     required this.dsn,
     this.tracesSampleRate = 1.0,
     this.environment,
+    this.fingerprintBuilder,
   });
 
   /// Whether the DSN is not empty.
@@ -74,12 +108,9 @@ final class SentryObservabilityProvider
     }
 
     try {
-      await SentryFlutter.init(
-        (options) {
-          _configureOptions(options);
-        },
-        appRunner: () async => await appRunner(),
-      );
+      await SentryFlutter.init((options) {
+        _configureOptions(options);
+      }, appRunner: () async => await appRunner());
 
       _enabled = true;
       SeniorLogger.info(
@@ -161,14 +192,25 @@ final class SentryObservabilityProvider
   @override
   Future<void> logError(dynamic exception, StackTrace? stackTrace) async {
     if (!_enabled) return;
-    if (exception is FlutterErrorDetails) {
-      await Sentry.captureException(
-        exception.exception,
-        stackTrace: exception.stack ?? stackTrace,
-      );
-    } else {
-      await Sentry.captureException(exception, stackTrace: stackTrace);
-    }
+
+    final actualException = exception is FlutterErrorDetails
+        ? exception.exception
+        : exception;
+    final actualStack = exception is FlutterErrorDetails
+        ? (exception.stack ?? stackTrace)
+        : stackTrace;
+
+    final fingerprint = fingerprintBuilder?.call(actualException, actualStack);
+
+    final fnScope = fingerprint != null && fingerprint.isNotEmpty
+        ? (scope) => scope.fingerprint = fingerprint
+        : null;
+
+    await Sentry.captureException(
+      actualException,
+      stackTrace: actualStack,
+      withScope: fnScope,
+    );
   }
 
   @override

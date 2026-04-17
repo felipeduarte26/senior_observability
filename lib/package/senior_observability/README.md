@@ -252,11 +252,37 @@ SentryObservabilityProvider(dsn: 'https://key@sentry.minhaempresa.com/456')
 
 Parâmetros opcionais:
 
-| Parâmetro          | Tipo      | Padrão | Descrição                                |
-| ------------------ | --------- | ------ | ---------------------------------------- |
-| `dsn`              | `String`  | —      | Endpoint do Sentry (obrigatório)         |
-| `tracesSampleRate` | `double`  | `1.0`  | Taxa de amostragem para traces (0.0–1.0) |
-| `environment`      | `String?` | `null` | Ambiente (`production`, `staging`, etc.) |
+| Parâmetro             | Tipo                         | Padrão | Descrição                                                    |
+| --------------------- | ---------------------------- | ------ | ------------------------------------------------------------ |
+| `dsn`                 | `String`                     | —      | Endpoint do Sentry (obrigatório)                             |
+| `tracesSampleRate`    | `double`                     | `1.0`  | Taxa de amostragem para traces (0.0–1.0)                     |
+| `environment`         | `String?`                    | `null` | Ambiente (`production`, `staging`, etc.)                     |
+| `fingerprintBuilder`  | `SentryFingerprintBuilder?`  | `null` | Callback para controlar o agrupamento de issues no Sentry    |
+
+### Fingerprint customizado
+
+Por padrão, o Sentry agrupa erros pela **stacktrace**. Com o `fingerprintBuilder` você controla como os erros são agrupados em issues no painel do Sentry.
+
+O callback recebe a `exception` e a `stackTrace`, e deve retornar:
+- Uma `List<String>` para sobrescrever o agrupamento padrão
+- `null` para manter o comportamento padrão do Sentry
+
+```dart
+SentryObservabilityProvider(
+  dsn: 'https://key@o0.ingest.sentry.io/123',
+  fingerprintBuilder: (exception, stackTrace) {
+    // Agrupa erros HTTP por endpoint + status code
+    if (exception is HttpException) {
+      return ['http-error', exception.uri.host, '${exception.statusCode}'];
+    }
+    // Agrupa TimeoutExceptions pelo serviço
+    if (exception is TimeoutException) {
+      return ['timeout', exception.message ?? 'unknown'];
+    }
+    return null; // mantém agrupamento padrão do Sentry
+  },
+)
+```
 
 ### AppRunner integration
 
