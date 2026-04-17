@@ -38,9 +38,44 @@ Para visualizá-los, é necessário cadastrar cada parâmetro como **Definição
 | **Evento** | Parâmetros que mudam a cada evento | `product_id`, `status_code`, `method`, `endpoint` |
 | **Usuário** | Propriedades fixas do usuário (via `setUser`) | `tenant`, `email`, `user_name` |
 
-### Métricas personalizadas
+### As 3 abas de Custom Definitions
 
-Se um parâmetro é numérico e você precisa de **soma, média ou contagem**, cadastre como **Métrica personalizada** (na aba ao lado de Dimensões) em vez de Dimensão. Exemplo: `value` de uma compra.
+No Firebase Console, a tela de Definições personalizadas possui três abas:
+
+#### Dimensões personalizadas
+
+**Valores de texto** que categorizam e agrupam eventos nos relatórios. Usadas para responder "o quê" ou "quem".
+
+- Origem: parâmetros de texto enviados pelo app via `logEvent` ou `setUserProperty`
+- Exemplo: `product_id = "abc123"`, `tenant = "senior"`, `method = "email"`
+- Uso no relatório: filtrar, agrupar, segmentar
+
+#### Métricas personalizadas
+
+**Valores numéricos** que o Firebase pode somar, calcular média ou contar. Usadas para responder "quanto".
+
+- Origem: parâmetros numéricos enviados pelo app via `logEvent`
+- Exemplo: `value = 99.90`, `response_time = 320`, `items_count = 5`
+- Uso no relatório: soma total, média por evento, valor máximo/mínimo
+- Unidade de medida: configurável no cadastro (moeda, tempo, padrão)
+
+> **Quando usar Métrica vs Dimensão?** Se o parâmetro é um número e você precisa de **soma ou média**, cadastre como Métrica. Se é um número que serve apenas para **filtrar** (ex: `status_code`), cadastre como Dimensão.
+
+#### Métricas calculadas
+
+**Fórmulas** criadas sobre métricas já existentes. Nenhum dado novo é enviado pelo app — o cálculo acontece no Firebase.
+
+- Origem: operação matemática entre métricas existentes
+- Exemplo: `receita_por_usuario = receita_total / usuarios_ativos`
+- Uso no relatório: KPIs derivados, taxas, médias compostas
+
+#### Resumo
+
+| Aba | O que é | Origem dos dados | Exemplo |
+| --- | --- | --- | --- |
+| **Dimensões** | Texto categórico | Enviado pelo app | `product_id`, `tenant` |
+| **Métricas** | Número mensurável | Enviado pelo app | `value`, `response_time` |
+| **Métricas calculadas** | Fórmula sobre métricas | Calculado no Firebase | `receita / usuarios` |
 
 ### Limites do Firebase Analytics
 
@@ -52,7 +87,11 @@ Se um parâmetro é numérico e você precisa de **soma, média ou contagem**, c
 | Tamanho do nome do parâmetro | 40 caracteres |
 | Tamanho do valor (string) | 100 caracteres |
 
-> **Importante**: Após cadastrar, os dados podem levar **até 24h** para aparecer nos relatórios. Eventos novos já coletam os parâmetros imediatamente.
+### Dados retroativos
+
+O Firebase **não retroage** dados de dimensões/métricas recém-cadastradas. Eventos enviados **antes** do cadastro não terão os parâmetros visíveis nos relatórios. Apenas eventos enviados **após** o cadastro aparecerão com os parâmetros associados.
+
+> Após cadastrar, os dados podem levar **até 24h** para aparecer nos relatórios. Eventos novos já coletam os parâmetros imediatamente.
 
 ### Alternativa: BigQuery Export
 
