@@ -17,7 +17,7 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
          │      Provider             │
          └──┬──────────┬─────────┬───┘
             │          │         │
-    ┌───────┴──┐ ┌─────┴────┐ ┌─┴────────────┐
+    ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
     │ Firebase │ │ Clarity  │ │    Sentry    │  ← Padrão Strategy
     │ Provider │ │ Provider │ │   Provider   │
     └──────────┘ └──────────┘ └──────────────┘
@@ -195,11 +195,11 @@ try {
 
 Após `SeniorObservability.init()`, **três camadas complementares** capturam erros automaticamente e enviam para todos os providers:
 
-| Camada | O que captura |
-| --- | --- |
-| `runZonedGuarded` | Exceções síncronas, Futures sem `.catchError`, Streams sem handler, `scheduleMicrotask`, `Timer` — tudo dentro da zona Dart |
-| `PlatformDispatcher.instance.onError` | Erros na camada do Flutter engine e na root zone (fora da zona monitorada) |
-| `FlutterError.onError` | Erros do framework Flutter (rendering, layout, gestures) |
+| Camada                                | O que captura                                                                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `runZonedGuarded`                     | Exceções síncronas, Futures sem `.catchError`, Streams sem handler, `scheduleMicrotask`, `Timer` — tudo dentro da zona Dart |
+| `PlatformDispatcher.instance.onError` | Erros na camada do Flutter engine e na root zone (fora da zona monitorada)                                                  |
+| `FlutterError.onError`                | Erros do framework Flutter (rendering, layout, gestures)                                                                    |
 
 Todas as camadas convergem para `composite.logError()`, que delega para **todos** os providers em paralelo. O `appRunner` é executado dentro de `runZonedGuarded`, garantindo cobertura completa:
 
@@ -295,8 +295,8 @@ O `ClarityObservabilityProvider` integra **session replay**, **heatmaps** e **an
 ClarityObservabilityProvider(projectId: 'seu_project_id')
 ```
 
-| Parâmetro   | Tipo     | Descrição                                                  |
-| ----------- | -------- | ---------------------------------------------------------- |
+| Parâmetro   | Tipo     | Descrição                                                   |
+| ----------- | -------- | ----------------------------------------------------------- |
 | `projectId` | `String` | ID do projeto Clarity (encontrado em Settings no dashboard) |
 
 ### AppRunner integration
@@ -381,14 +381,14 @@ SeniorClarityMask(
 
 ### Mapeamento de APIs
 
-| Método genérico (`IObservabilityProvider`) | API Clarity utilizada               |
-| ----------------------------------------- | ----------------------------------- |
-| `setUser()`                               | `setCustomUserId` + `setCustomTag`  |
-| `logEvent()`                              | `sendCustomEvent` + `setCustomTag`  |
-| `logScreen()`                             | `setCurrentScreenName`              |
-| `logError()`                              | `sendCustomEvent` + tag `last_error`|
-| `startTrace()`                            | `null` (não suportado)              |
-| `startHttpTrace()`                        | `null` (não suportado)              |
+| Método genérico (`IObservabilityProvider`) | API Clarity utilizada                |
+| ------------------------------------------ | ------------------------------------ |
+| `setUser()`                                | `setCustomUserId` + `setCustomTag`   |
+| `logEvent()`                               | `sendCustomEvent` + `setCustomTag`   |
+| `logScreen()`                              | `setCurrentScreenName`               |
+| `logError()`                               | `sendCustomEvent` + tag `last_error` |
+| `startTrace()`                             | `null` (não suportado)               |
+| `startHttpTrace()`                         | `null` (não suportado)               |
 
 ## Sentry
 
@@ -404,18 +404,19 @@ SentryObservabilityProvider(dsn: 'https://key@sentry.minhaempresa.com/456')
 
 Parâmetros opcionais:
 
-| Parâmetro             | Tipo                         | Padrão | Descrição                                                    |
-| --------------------- | ---------------------------- | ------ | ------------------------------------------------------------ |
-| `dsn`                 | `String`                     | —      | Endpoint do Sentry (obrigatório)                             |
-| `tracesSampleRate`    | `double`                     | `1.0`  | Taxa de amostragem para traces (0.0–1.0)                     |
-| `environment`         | `String?`                    | `null` | Ambiente (`production`, `staging`, etc.)                     |
-| `fingerprintBuilder`  | `SentryFingerprintBuilder?`  | `null` | Callback para controlar o agrupamento de issues no Sentry    |
+| Parâmetro            | Tipo                        | Padrão | Descrição                                                 |
+| -------------------- | --------------------------- | ------ | --------------------------------------------------------- |
+| `dsn`                | `String`                    | —      | Endpoint do Sentry (obrigatório)                          |
+| `tracesSampleRate`   | `double`                    | `1.0`  | Taxa de amostragem para traces (0.0–1.0)                  |
+| `environment`        | `String?`                   | `null` | Ambiente (`production`, `staging`, etc.)                  |
+| `fingerprintBuilder` | `SentryFingerprintBuilder?` | `null` | Callback para controlar o agrupamento de issues no Sentry |
 
 ### Fingerprint customizado
 
 Por padrão, o Sentry agrupa erros pela **stacktrace**. Com o `fingerprintBuilder` você controla como os erros são agrupados em issues no painel do Sentry.
 
 O callback recebe a `exception` e a `stackTrace`, e deve retornar:
+
 - Uma `List<String>` para sobrescrever o agrupamento padrão
 - `null` para manter o comportamento padrão do Sentry
 
