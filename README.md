@@ -7,7 +7,7 @@ Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlyt
 ```
 ┌─────────────────────────────────────────────────────┐
 │                SeniorObservability                  │
-│                 (Facade Patterns)                   │
+│                                                     │  ← Facade Patterns
 └──────────────────────┬──────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
