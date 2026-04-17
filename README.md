@@ -1,10 +1,25 @@
-# Senior Observability App
+# Senior Observability
 
-Aplicação de exemplo que demonstra o uso do package **senior_observability**.
+Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlytics, Performance), **Microsoft Clarity** (Session Replay, Heatmaps) e **Sentry** (Error Tracking) em uma interface única e desacoplada.
 
-## Package
+## Arquitetura
 
-A documentação completa do package está em [`lib/package/senior_observability/`](lib/package/senior_observability/README.md).
+```
+┌─────────────────────────────────────────────────────┐
+│                SeniorObservability                  │
+│                   (Facade)                          │
+└──────────────────────┬──────────────────────────────┘
+                       │
+         ┌─────────────┴─────────────┐
+         │ CompositeObservability    │  ← Composite
+         │      Provider             │
+         └──┬──────────┬─────────┬───┘
+            │          │         │
+    ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
+    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy
+    │ Provider │ │ Provider │ │   Provider   │
+    └──────────┘ └──────────┘ └──────────────┘
+```
 
 ## Quick Start
 
@@ -26,6 +41,8 @@ Future<void> main() async {
 }
 ```
 
+Escolha apenas os providers que precisa — basta adicioná-los na lista.
+
 ## Documentação
 
 | Documento | Descrição |
@@ -33,10 +50,12 @@ Future<void> main() async {
 | [Primeiros Passos](lib/package/senior_observability/docs/getting-started.md) | Inicialização, definir usuário, acessar providers |
 | [Eventos e Analytics](lib/package/senior_observability/docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents` |
 | [Error Tracking](lib/package/senior_observability/docs/error-tracking.md) | Captura manual e automática (3 camadas) |
-| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md) | Mixins e observers para tracking de telas |
-| [Firebase](lib/package/senior_observability/docs/providers/firebase.md) | Analytics, Crashlytics, Performance |
-| [Microsoft Clarity](lib/package/senior_observability/docs/providers/clarity.md) | Session replay, heatmaps, masking widgets |
-| [Sentry](lib/package/senior_observability/docs/providers/sentry.md) | Error tracking, fingerprint customizado |
+| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md) | `SeniorScreenObserver`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
+| **Providers** | |
+| [Firebase](lib/package/senior_observability/docs/providers/firebase.md) | Analytics, Crashlytics, Performance (HTTP traces, custom traces) |
+| [Microsoft Clarity](lib/package/senior_observability/docs/providers/clarity.md) | Session replay, heatmaps, session adapter, widgets de masking |
+| [Sentry](lib/package/senior_observability/docs/providers/sentry.md) | Error tracking, fingerprint customizado, AppRunner integration |
+| **Avançado** | |
 | [Provider Customizado](lib/package/senior_observability/docs/custom-provider.md) | Como criar e registrar seu próprio provider |
-| [Logging](lib/package/senior_observability/docs/logging.md) | Sistema de logging interno |
-| [Arquitetura](lib/package/senior_observability/docs/architecture.md) | Padrões de projeto, estrutura do package |
+| [Logging](lib/package/senior_observability/docs/logging.md) | Sistema de logging interno, padrão Adapter |
+| [Arquitetura](lib/package/senior_observability/docs/architecture.md) | Princípios, padrões de projeto, estrutura do package |
