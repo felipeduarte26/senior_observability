@@ -86,23 +86,6 @@ lib/
     └── senior_observability_facade.dart               SeniorObservability (final class)
 ```
 
-## Estrutura da Documentação
-
-```
-docs/
-├── getting-started.md          Inicialização, setUser, provider<T>()
-├── events-and-analytics.md     Eventos customizados, SeniorEvents
-├── error-tracking.md           Captura manual e automática
-├── screen-tracking.md          3 abordagens de rastreamento de telas
-├── custom-provider.md          Como criar providers customizados
-├── logging.md                  Sistema de logging + adapter pattern
-├── architecture.md             Este arquivo
-└── providers/
-    ├── firebase.md             Firebase Analytics, Crashlytics, Performance
-    ├── clarity.md              Microsoft Clarity — session replay, masking
-    └── sentry.md               Sentry — error tracking, fingerprint
-```
-
 ---
 
 Voltar: [README](../README.md)
