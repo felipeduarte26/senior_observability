@@ -38,6 +38,17 @@ final class SeniorObservability {
   /// The currently configured user, if any.
   static SeniorUser? get currentUser => _currentUser;
 
+  /// Returns the first registered provider of type [T], or `null`.
+  ///
+  /// Use this to access provider-specific features that are not part
+  /// of the generic [IObservabilityProvider] contract.
+  ///
+  /// ```dart
+  /// final clarity = SeniorObservability.provider<ClarityObservabilityProvider>();
+  /// clarity?.session.pauseRecording();
+  /// ```
+  static T? provider<T>() => _composite?.findProvider<T>();
+
   /// Initializes Senior Observability with the desired providers and
   /// starts the application inside a guarded error zone.
   ///

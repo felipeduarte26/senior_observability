@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../logger/logger.dart';
 import '../senior_observability_facade.dart';
 
 /// [NavigatorObserver] that automatically captures route navigations.

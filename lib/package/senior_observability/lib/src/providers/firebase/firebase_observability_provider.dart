@@ -9,6 +9,7 @@ import '../../models/models.dart';
 
 part '_firebase_trace_handle.dart';
 part '_firebase_http_trace_handle.dart';
+part '_http_method_extension.dart';
 part '_string_take_extension.dart';
 
 /// Observability provider backed by Firebase.
@@ -48,23 +49,39 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
 
   @override
   Future<void> setUser(SeniorUser user) async {
+    final extras = user.extras;
+
     await Future.wait([
       _analytics.setUserId(id: user.email),
       _analytics.setUserProperty(name: 'tenant', value: user.tenant),
       _analytics.setUserProperty(name: 'email', value: user.email),
       if (user.name != null)
         _analytics.setUserProperty(name: 'user_name', value: user.name),
+      if (extras != null)
+        for (final MapEntry(:key, :value) in extras.entries)
+          if (value != null)
+            _analytics.setUserProperty(
+              name: key.take(24),
+              value: value.toString().take(36),
+            ),
 
       _analytics.setDefaultEventParameters({
         'tenant': user.tenant,
         'email': user.email,
         if (user.name != null) 'user_name': user.name,
+        if (extras != null)
+          for (final MapEntry(:key, :value) in extras.entries)
+            if (value != null) key: value,
       }),
 
       _crashlytics.setUserIdentifier(user.email),
       _crashlytics.setCustomKey('tenant', user.tenant),
       _crashlytics.setCustomKey('email', user.email),
       if (user.name != null) _crashlytics.setCustomKey('name', user.name!),
+      if (extras != null)
+        for (final MapEntry(:key, :value) in extras.entries)
+          if (value != null)
+            _crashlytics.setCustomKey(key, value.toString()),
     ]);
   }
 
@@ -100,7 +117,7 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
     required String url,
     required String method,
   }) async {
-    final httpMethod = _parseHttpMethod(method);
+    final httpMethod = method.toHttpMethod();
     final metric = _performance.newHttpMetric(url, httpMethod);
     await metric.start();
     return _FirebaseHttpTraceHandle(metric);
@@ -113,12 +130,4 @@ final class FirebaseObservabilityProvider implements IObservabilityProvider {
     if (params == null) return null;
     return params.map((key, value) => MapEntry(key, value as Object));
   }
-
-  HttpMethod _parseHttpMethod(String method) => switch (method.toUpperCase()) {
-    'POST' => HttpMethod.Post,
-    'PUT' => HttpMethod.Put,
-    'DELETE' => HttpMethod.Delete,
-    'PATCH' => HttpMethod.Patch,
-    _ => HttpMethod.Get,
-  };
 }

@@ -144,13 +144,25 @@ final class SentryObservabilityProvider
         SentryUser(
           email: user.email,
           username: user.name,
-          data: {'tenant': user.tenant},
+          data: {
+            'tenant': user.tenant,
+            if (user.extras case final extras?)
+              for (final MapEntry(:key, :value) in extras.entries)
+                if (value != null) key: value,
+          },
         ),
       );
       scope.setTag('tenant', user.tenant);
       scope.setTag('email', user.email);
       if (user.name != null) {
         scope.setTag('user_name', user.name!);
+      }
+      if (user.extras case final extras?) {
+        for (final MapEntry(:key, :value) in extras.entries) {
+          if (value != null) {
+            scope.setTag(key, value.toString());
+          }
+        }
       }
     });
   }

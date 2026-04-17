@@ -28,7 +28,7 @@ void main() {
 
       expect(
         user.toString(),
-        'SeniorUser(tenant: acme, email: a@b.com, name: Ana)',
+        'SeniorUser(tenant: acme, email: a@b.com, name: Ana, extras: null)',
       );
     });
 
@@ -37,7 +37,7 @@ void main() {
 
       expect(
         user.toString(),
-        'SeniorUser(tenant: acme, email: a@b.com, name: null)',
+        'SeniorUser(tenant: acme, email: a@b.com, name: null, extras: null)',
       );
     });
 
@@ -46,6 +46,54 @@ void main() {
       const user2 = SeniorUser(tenant: 'x', email: 'y');
 
       expect(identical(user1, user2), isTrue);
+    });
+
+    test('toMap includes extras when provided', () {
+      const user = SeniorUser(
+        tenant: 'acme',
+        email: 'a@b.com',
+        extras: {'role': 'admin', 'plan': 'pro'},
+      );
+      final map = user.toMap();
+
+      expect(map, {
+        'tenant': 'acme',
+        'email': 'a@b.com',
+        'role': 'admin',
+        'plan': 'pro',
+      });
+    });
+
+    test('toMap excludes extras when null', () {
+      const user = SeniorUser(tenant: 'acme', email: 'a@b.com');
+
+      expect(user.toMap().containsKey('role'), isFalse);
+    });
+
+    test('toMap skips null values inside extras', () {
+      const user = SeniorUser(
+        tenant: 'acme',
+        email: 'a@b.com',
+        extras: {'role': 'admin', 'team': null},
+      );
+      final map = user.toMap();
+
+      expect(map.containsKey('team'), isFalse);
+      expect(map['role'], 'admin');
+    });
+
+    test('toString includes extras when provided', () {
+      const user = SeniorUser(
+        tenant: 'acme',
+        email: 'a@b.com',
+        extras: {'role': 'admin'},
+      );
+
+      expect(
+        user.toString(),
+        'SeniorUser(tenant: acme, email: a@b.com, name: null, '
+        'extras: {role: admin})',
+      );
     });
   });
 }

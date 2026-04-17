@@ -1,5 +1,5 @@
 name: senior_observability
-description: "Senior Observability Package — Firebase + Sentry integration for Flutter apps."
+description: "Senior Observability Package — Firebase, Sentry & Clarity integration for Flutter apps."
 version: 1.0.0
 homepage:
 
@@ -17,6 +17,7 @@ dependencies:
   firebase_crashlytics: ^5.2.0
   firebase_performance: ^0.11.3
   sentry_flutter: ^9.17.0
+  clarity_flutter: ^1.8.0
   logger: ^2.7.0
 dev_dependencies:
   flutter_test:

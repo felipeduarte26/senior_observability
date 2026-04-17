@@ -1,6 +1,6 @@
 # Senior Observability
 
-Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlytics, Performance) e **Sentry** em uma interface única e desacoplada.
+Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlytics, Performance), **Microsoft Clarity** (Session Replay, Heatmaps) e **Sentry** (Error Tracking) em uma interface única e desacoplada.
 
 ## Arquitetura
 
@@ -15,12 +15,12 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
          ┌─────────────┴─────────────┐
          │ CompositeObservability    │  ← Padrão Composite
          │      Provider             │
-         └─────┬───────────┬─────────┘
-               │           │
-    ┌──────────┴──┐  ┌─────┴──────────┐
-    │  Firebase   │  │    Sentry      │  ← Padrão Strategy
-    │  Provider   │  │    Provider    │
-    └─────────────┘  └────────────────┘
+         └──┬──────────┬─────────┬───┘
+            │          │         │
+    ┌───────┴──┐ ┌─────┴────┐ ┌─┴────────────┐
+    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Padrão Strategy
+    │ Provider │ │ Provider │ │   Provider   │
+    └──────────┘ └──────────┘ └──────────────┘
 ```
 
 ## Princípios
@@ -33,7 +33,11 @@ O package aplica os padrões **Strategy**, **Facade**, **Composite** e **Adapter
 
 ### 1. Inicialização
 
-Chame `SeniorObservability.init()` no `main()` como único ponto de entrada. O `appRunner` substitui a chamada manual ao `runApp()`:
+Chame `SeniorObservability.init()` no `main()` como único ponto de entrada. O `appRunner` substitui a chamada manual ao `runApp()`.
+
+Escolha os providers que deseja usar — basta adicioná-los na lista:
+
+#### Firebase + Clarity
 
 ```dart
 import 'package:senior_observability/senior_observability.dart';
@@ -42,6 +46,23 @@ Future<void> main() async {
   await SeniorObservability.init(
     providers: [
       FirebaseObservabilityProvider(),
+      ClarityObservabilityProvider(projectId: 'seu_project_id'),
+    ],
+    appRunner: () => runApp(const MyApp()),
+  );
+}
+```
+
+#### Firebase + Clarity + Sentry
+
+```dart
+import 'package:senior_observability/senior_observability.dart';
+
+Future<void> main() async {
+  await SeniorObservability.init(
+    providers: [
+      FirebaseObservabilityProvider(),
+      ClarityObservabilityProvider(projectId: 'seu_project_id'),
       SentryObservabilityProvider(
         dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
         environment: 'production',
@@ -84,9 +105,37 @@ await SeniorObservability.setUser(SeniorUser(
 ));
 ```
 
-Após a chamada, os campos `tenant`, `email` e `name` são automaticamente enviados como contexto/tags em **todos os providers** (Firebase Analytics, Crashlytics, Sentry).
+Com `extras` opcional para metadados específicos do projeto:
+
+```dart
+await SeniorObservability.setUser(SeniorUser(
+  tenant: 'senior',
+  email: 'felipe@senior.com.br',
+  name: 'Felipe',
+  extras: {
+    'role': 'admin',
+    'plan': 'enterprise',
+    'department': 'engineering',
+  },
+));
+```
+
+Após a chamada, os campos `tenant`, `email`, `name` e `extras` são automaticamente enviados como contexto/tags em **todos os providers** (Firebase Analytics/Crashlytics, Clarity custom tags, Sentry tags/user data).
 
 > **Importante**: `setUser` precisa ser chamado **apenas uma vez** (ex: após o login). O contexto persiste durante toda a sessão do app. Chame novamente apenas se o usuário trocar de conta ou os dados mudarem.
+
+### 3. Acessar um provider específico
+
+Após a inicialização, qualquer provider registrado pode ser recuperado por tipo usando `SeniorObservability.provider<T>()`:
+
+```dart
+final clarity = SeniorObservability.provider<ClarityObservabilityProvider>();
+clarity?.session.pauseRecording();
+
+final sentry = SeniorObservability.provider<SentryObservabilityProvider>();
+```
+
+Retorna `null` se o provider não foi registrado na inicialização.
 
 ## Eventos e Analytics
 
@@ -238,6 +287,109 @@ await SeniorObservability.trace('checkout_flow', () async {
 
 O trace é enviado ao Firebase Performance (como `Trace`) e ao Sentry (como `Transaction`).
 
+## Microsoft Clarity
+
+O `ClarityObservabilityProvider` integra **session replay**, **heatmaps** e **analytics de interação** do [Microsoft Clarity](https://clarity.microsoft.com).
+
+```dart
+ClarityObservabilityProvider(projectId: 'seu_project_id')
+```
+
+| Parâmetro   | Tipo     | Descrição                                                  |
+| ----------- | -------- | ---------------------------------------------------------- |
+| `projectId` | `String` | ID do projeto Clarity (encontrado em Settings no dashboard) |
+
+### AppRunner integration
+
+O `ClarityObservabilityProvider` implementa `IAppRunnerAwareProvider`, assim como o Sentry. Isso significa que a inicialização do Clarity é encadeada no pipeline do `appRunner`:
+
+1. A facade chama `initWithAppRunner(appRunner)` no Clarity provider
+2. O provider executa o `appRunner()` (que sobe o app via `runApp`)
+3. No primeiro frame renderizado, o Clarity se inicializa automaticamente usando o `rootElement` como `BuildContext`
+
+Esse comportamento é **funcionalmente idêntico** ao `ClarityWidget` oficial — ambos chamam `Clarity.initialize(context, config)` internamente. A diferença é que aqui tudo acontece automaticamente dentro do pipeline da facade.
+
+> **Nota**: Entre o `runApp` e o primeiro frame, o Clarity ainda não está ativo. Todas as chamadas nesse intervalo são silenciosamente ignoradas (guards `if (!_initialized) return` em todos os métodos).
+
+### Session Adapter — Funções específicas do Clarity
+
+Para funcionalidades exclusivas do Clarity (pause, resume, session URL, etc.), use `SeniorObservability.provider<T>()` para recuperar o provider e acesse a API via `.session`:
+
+```dart
+await SeniorObservability.init(
+  providers: [
+    FirebaseObservabilityProvider(),
+    ClarityObservabilityProvider(projectId: 'seu_project_id'),
+  ],
+  appRunner: () => runApp(const MyApp()),
+);
+
+// Em qualquer lugar do app, sem variável externa:
+final clarity = SeniorObservability.provider<ClarityObservabilityProvider>();
+
+// Pausar/retomar gravação
+clarity?.session.pauseRecording();
+clarity?.session.resumeRecording();
+
+// Verificar estado
+clarity?.session.isRecordingPaused;  // bool
+clarity?.session.isInitialized;      // bool
+
+// URL da sessão no dashboard
+final url = clarity?.session.currentSessionUrl;
+
+// Iniciar nova sessão (ex: após logout/login)
+clarity?.session.startNewSession((sessionId) {
+  print('Nova sessão: $sessionId');
+});
+
+// ID de sessão customizado
+clarity?.session.setSessionId('minha-sessao-123');
+
+// Callback quando sessão iniciar
+clarity?.session.onSessionStarted((sessionId) {
+  print('Sessão ativa: $sessionId');
+});
+```
+
+### Widgets de Masking
+
+Para proteger dados sensíveis nas gravações de sessão, use os widgets adapter:
+
+```dart
+import 'package:senior_observability/senior_observability.dart';
+
+// Mascarar conteúdo sensível
+SeniorClarityMask(
+  child: Text('CPF: 123.456.789-00'),
+)
+
+// Revelar conteúdo dentro de uma área mascarada
+SeniorClarityMask(
+  child: Column(
+    children: [
+      Text('Dados sensíveis'),          // mascarado
+      SeniorClarityUnmask(
+        child: Text('Dados públicos'),   // visível
+      ),
+    ],
+  ),
+)
+```
+
+> **Nota**: Os widgets originais do Clarity (`ClarityMask`, `ClarityUnmask`, `ClarityWidget`) também estão disponíveis via o mesmo import, caso prefira usá-los diretamente.
+
+### Mapeamento de APIs
+
+| Método genérico (`IObservabilityProvider`) | API Clarity utilizada               |
+| ----------------------------------------- | ----------------------------------- |
+| `setUser()`                               | `setCustomUserId` + `setCustomTag`  |
+| `logEvent()`                              | `sendCustomEvent` + `setCustomTag`  |
+| `logScreen()`                             | `setCurrentScreenName`              |
+| `logError()`                              | `sendCustomEvent` + tag `last_error`|
+| `startTrace()`                            | `null` (não suportado)              |
+| `startHttpTrace()`                        | `null` (não suportado)              |
+
 ## Sentry
 
 O `SentryObservabilityProvider` suporta tanto **sentry.io** (cloud) quanto instâncias **self-hosted** — basta configurar o DSN:
@@ -292,7 +444,28 @@ O `SentryObservabilityProvider` implementa `IAppRunnerAwareProvider`, o que sign
 - **Auto performance monitoring** — o Sentry rastreia automaticamente o tempo de startup do app
 - **Full SDK integration** — todas as funcionalidades nativas do Sentry Flutter SDK ficam habilitadas
 
-O facade (`SeniorObservability.init`) detecta automaticamente providers que implementam `IAppRunnerAwareProvider` e encadeia o `appRunner` através deles. O dev não precisa fazer nada extra — basta chamar `SeniorObservability.init()` normalmente.
+### Encadeamento de `IAppRunnerAwareProvider`
+
+A facade detecta automaticamente todos os providers que implementam `IAppRunnerAwareProvider` e **encadeia** o `appRunner` através deles. Atualmente, tanto o **Sentry** quanto o **Clarity** implementam essa interface.
+
+O encadeamento funciona assim:
+
+```
+SeniorObservability.init()
+  │
+  ├── 1. init() dos providers comuns (Firebase)
+  │
+  ├── 2. Monta pipeline de IAppRunnerAwareProvider:
+  │      Clarity.initWithAppRunner(
+  │        Sentry.initWithAppRunner(
+  │          () => runApp(MyApp())
+  │        )
+  │      )
+  │
+  └── 3. Executa pipeline → app inicia dentro das zonas de todos os providers
+```
+
+Cada provider recebe o `appRunner` e **deve** chamá-lo exatamente uma vez, mesmo em caso de falha — garantindo que o app sempre inicia.
 
 ## Rastreamento automático de telas
 
@@ -399,7 +572,7 @@ final class MyCustomProvider implements IObservabilityProvider {
 }
 ```
 
-Se o provider precisa envolver o `appRunner` (como o Sentry), implemente também `IAppRunnerAwareProvider`:
+Se o provider precisa envolver o `appRunner` (como o Sentry e o Clarity), implemente também `IAppRunnerAwareProvider`:
 
 ```dart
 final class MySdkProvider implements IObservabilityProvider, IAppRunnerAwareProvider {
@@ -433,6 +606,13 @@ await SeniorObservability.init(
   ],
   appRunner: () => runApp(const MyApp()),
 );
+```
+
+Para acessar funcionalidades específicas do seu provider customizado, use `SeniorObservability.provider<T>()`:
+
+```dart
+final myProvider = SeniorObservability.provider<MyCustomProvider>();
+myProvider?.customFeature();
 ```
 
 ## Logging
@@ -522,15 +702,25 @@ lib/
     │   └── senior_events.dart                         SeniorEvents (enum)
     ├── providers/
     │   ├── providers.dart                            Barrel file
+    │   ├── clarity/
+    │   │   ├── clarity.dart                          Barrel file (+ re-exports clarity_flutter)
+    │   │   ├── clarity_observability_provider.dart    ClarityObservabilityProvider (IAppRunnerAwareProvider)
+    │   │   ├── _clarity_session_adapter.dart          part — session recording adapter (extension type)
+    │   │   ├── _string_take_extension.dart            part — String truncation extension
+    │   │   └── widgets/
+    │   │       ├── widgets.dart                       Barrel file
+    │   │       ├── senior_clarity_mask.dart            SeniorClarityMask (StatelessWidget)
+    │   │       └── senior_clarity_unmask.dart          SeniorClarityUnmask (StatelessWidget)
     │   ├── firebase/
     │   │   ├── firebase.dart                          Barrel file
     │   │   ├── firebase_observability_provider.dart    FirebaseObservabilityProvider (final class)
     │   │   ├── _firebase_trace_handle.dart             part — Firebase trace handle
     │   │   ├── _firebase_http_trace_handle.dart        part — Firebase HTTP trace handle
-    │   │   └── _string_take_extension.dart             part — String extension
+    │   │   ├── _http_method_extension.dart             part — HttpMethod extension
+    │   │   └── _string_take_extension.dart             part — String truncation extension
     │   └── sentry/
     │       ├── sentry.dart                            Barrel file
-    │       ├── sentry_observability_provider.dart      SentryObservabilityProvider (final class)
+    │       ├── sentry_observability_provider.dart      SentryObservabilityProvider (IAppRunnerAwareProvider)
     │       ├── _sentry_trace_handle.dart               part — Sentry trace handle
     │       └── _sentry_http_trace_handle.dart          part — Sentry HTTP trace handle
     ├── navigation/

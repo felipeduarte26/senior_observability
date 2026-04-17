@@ -12,6 +12,12 @@ Future<void> main() async {
   await SeniorObservability.init(
     providers: [
       FirebaseObservabilityProvider(),
+      ClarityObservabilityProvider(
+        projectId: const String.fromEnvironment(
+          'CLARITY_PROJECT_ID',
+          defaultValue: '',
+        ),
+      ),
       SentryObservabilityProvider(
         dsn: const String.fromEnvironment('SENTRY_DSN', defaultValue: ''),
         environment: 'development',
