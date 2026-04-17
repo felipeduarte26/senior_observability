@@ -13,16 +13,16 @@
 ```
 ┌─────────────────────────────────────────────────────┐
 │                SeniorObservability                  │
-│                   (Facade)                          │
+│                                                     │ ← Facade Patterns
 └──────────────────────┬──────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
-         │ CompositeObservability    │  ← Composite
+         │ CompositeObservability    │  ← Composite Patterns
          │      Provider             │
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy
+    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Patterns
     │ Provider │ │ Provider │ │   Provider   │
     └──────────┘ └──────────┘ └──────────────┘
 ```
