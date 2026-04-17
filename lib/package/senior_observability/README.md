@@ -7,16 +7,16 @@ Package Flutter de observabilidade que integra **Firebase** (Analytics, Crashlyt
 ```
 ┌─────────────────────────────────────────────────────┐
 │                SeniorObservability                  │
-│                   (Facade)                          │
+│                 (Facade Patterns)                   │
 └──────────────────────┬──────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
-         │ CompositeObservability    │  ← Composite
+         │ CompositeObservability    │  ← Composite Patterns
          │      Provider             │
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy
+    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Patterns
     │ Provider │ │ Provider │ │   Provider   │
     └──────────┘ └──────────┘ └──────────────┘
 ```
@@ -45,17 +45,17 @@ Escolha apenas os providers que precisa — basta adicioná-los na lista.
 
 ## Documentação
 
-| Documento | Descrição |
-| --- | --- |
-| [Primeiros Passos](docs/getting-started.md) | Inicialização, definir usuário, acessar providers |
-| [Eventos e Analytics](docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents` |
-| [Error Tracking](docs/error-tracking.md) | Captura manual e automática (3 camadas) |
-| [Rastreamento de Telas](docs/screen-tracking.md) | `SeniorScreenObserver`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
-| **Providers** | |
-| [Firebase](docs/providers/firebase.md) | Analytics, Crashlytics, Performance (HTTP traces, custom traces) |
-| [Microsoft Clarity](docs/providers/clarity.md) | Session replay, heatmaps, session adapter, widgets de masking |
-| [Sentry](docs/providers/sentry.md) | Error tracking, fingerprint customizado, AppRunner integration |
-| **Avançado** | |
-| [Provider Customizado](docs/custom-provider.md) | Como criar e registrar seu próprio provider |
-| [Logging](docs/logging.md) | Sistema de logging interno, padrão Adapter |
-| [Arquitetura](docs/architecture.md) | Princípios, padrões de projeto, estrutura do package |
+| Documento                                           | Descrição                                                                          |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [Primeiros Passos](docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                                  |
+| [Eventos e Analytics](docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                   |
+| [Error Tracking](docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                            |
+| [Rastreamento de Telas](docs/screen-tracking.md)    | `SeniorScreenObserver`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
+| **Providers**                                       |                                                                                    |
+| [Firebase](docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                   |
+| [Microsoft Clarity](docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                      |
+| [Sentry](docs/providers/sentry.md)                  | Error tracking, fingerprint customizado, AppRunner integration                     |
+| **Avançado**                                        |                                                                                    |
+| [Provider Customizado](docs/custom-provider.md)     | Como criar e registrar seu próprio provider                                        |
+| [Logging](docs/logging.md)                          | Sistema de logging interno, padrão Adapter                                         |
+| [Arquitetura](docs/architecture.md)                 | Princípios, padrões de projeto, estrutura do package                               |
