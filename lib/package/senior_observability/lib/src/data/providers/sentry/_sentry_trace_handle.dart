@@ -13,9 +13,9 @@ final class _SentryTraceHandle implements ITraceHandle {
   Future<void> stop({dynamic error}) async {
     if (error != null) {
       _span.throwable = error is Exception ? error : null;
-      _span.setStatusError();
+      _span.setStatusFailure();
     } else {
-      _span.setStatusOk();
+      _span.setStatusSuccess();
     }
     await _span.finish();
   }

@@ -1,23 +1,21 @@
-/// Abstracts Firebase Analytics SDK calls.
-///
-/// The provider depends on this interface instead of calling
-/// `FirebaseAnalytics.instance` directly, enabling unit testing
-/// and future SDK replacements.
+/// Abstracts Firebase Analytics SDK.
 abstract interface class IFirebaseAnalyticsAdapter {
+  /// Sets the user ID.
   Future<void> setUserId({required String id});
 
-  Future<void> setUserProperty({
-    required String name,
-    required String? value,
-  });
+  /// Sets a user property.
+  Future<void> setUserProperty({required String name, required String? value});
 
+  /// Sets the default event parameters.
   Future<void> setDefaultEventParameters(Map<String, Object?> parameters);
 
+  /// Logs an event.
   Future<void> logEvent({
     required String name,
     Map<String, Object>? parameters,
   });
 
+  /// Logs a screen view.
   Future<void> logScreenView({
     String? screenName,
     String? screenClass,

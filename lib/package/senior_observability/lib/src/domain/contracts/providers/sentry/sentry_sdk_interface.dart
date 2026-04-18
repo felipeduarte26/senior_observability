@@ -1,10 +1,7 @@
 import 'dart:async';
 
-/// Abstracts Sentry Flutter SDK calls.
-///
-/// All Sentry-specific types (SentryUser, Breadcrumb, SentryFlutterOptions,
-/// Scope, etc.) are handled internally by the adapter implementation,
-/// keeping the provider free of SDK dependencies.
+/// Abstracts Sentry Flutter SDK
+
 abstract interface class ISentrySdkAdapter {
   /// Initializes Sentry with the given configuration.
   Future<void> init({
@@ -57,10 +54,21 @@ abstract interface class ISentrySdkAdapter {
 
 /// Abstracts a Sentry span/transaction.
 abstract interface class ISentrySpanAdapter {
+  /// Sets the throwable.
   set throwable(Exception? value);
-  void setStatusOk();
-  void setStatusError();
+
+  /// Sets the status to success.
+  void setStatusSuccess();
+
+  /// Sets the status to error.
+  void setStatusFailure();
+
+  /// Sets the data.
   void setData(String key, dynamic value);
+
+  /// Sets the status from HTTP code.
   void setStatusFromHttpCode(int code);
+
+  /// Finishes the span/transaction.
   Future<void> finish();
 }

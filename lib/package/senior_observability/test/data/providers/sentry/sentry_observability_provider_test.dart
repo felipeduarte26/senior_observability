@@ -16,10 +16,7 @@ void main() {
   setUp(() {
     adapter = MockSentryAdapter();
 
-    provider = SentryObservabilityProvider(
-      dsn: dsn,
-      adapter: adapter,
-    );
+    provider = SentryObservabilityProvider(dsn: dsn, adapter: adapter);
   });
 
   setUpAll(() {
@@ -39,11 +36,7 @@ void main() {
       await provider.init();
 
       verify(
-        () => adapter.init(
-          dsn: dsn,
-          tracesSampleRate: 1.0,
-          environment: null,
-        ),
+        () => adapter.init(dsn: dsn, tracesSampleRate: 1.0, environment: null),
       ).called(1);
     });
 
@@ -109,8 +102,11 @@ void main() {
         appRan = true;
       });
 
-      expect(appRan, isFalse,
-          reason: 'appRunner is passed to adapter, not called directly');
+      expect(
+        appRan,
+        isFalse,
+        reason: 'appRunner is passed to adapter, not called directly',
+      );
 
       when(
         () => adapter.addBreadcrumb(
@@ -235,9 +231,7 @@ void main() {
       final disabled = SentryObservabilityProvider(dsn: '', adapter: adapter);
       await disabled.init();
 
-      await disabled.setUser(
-        const SeniorUser(tenant: 'x', email: 'y'),
-      );
+      await disabled.setUser(const SeniorUser(tenant: 'x', email: 'y'));
 
       verifyNever(
         () => adapter.setUser(
@@ -355,10 +349,7 @@ void main() {
         ),
       ).thenAnswer((_) async {});
 
-      await provider.logScreen(
-        'HomeScreen',
-        params: {'source': 'deeplink'},
-      );
+      await provider.logScreen('HomeScreen', params: {'source': 'deeplink'});
 
       verify(
         () => adapter.addBreadcrumb(
@@ -507,60 +498,64 @@ void main() {
           bindToScope: any(named: 'bindToScope'),
         ),
       ).thenReturn(mockSpan);
-      when(() => mockSpan.setStatusOk()).thenReturn(null);
+      when(() => mockSpan.setStatusSuccess()).thenReturn(null);
       when(() => mockSpan.finish()).thenAnswer((_) async {});
 
       final handle = await provider.startTrace('op');
       await handle!.stop();
 
-      verify(() => mockSpan.setStatusOk()).called(1);
+      verify(() => mockSpan.setStatusSuccess()).called(1);
       verify(() => mockSpan.finish()).called(1);
     });
 
-    test('trace handle stop with error sets error status and throwable',
-        () async {
-      await initProvider();
-      final mockSpan = MockSentrySpan();
-      when(
-        () => adapter.startTransaction(
-          any(),
-          any(),
-          bindToScope: any(named: 'bindToScope'),
-        ),
-      ).thenReturn(mockSpan);
-      when(() => mockSpan.throwable = any()).thenReturn(null);
-      when(() => mockSpan.setStatusError()).thenReturn(null);
-      when(() => mockSpan.finish()).thenAnswer((_) async {});
+    test(
+      'trace handle stop with error sets error status and throwable',
+      () async {
+        await initProvider();
+        final mockSpan = MockSentrySpan();
+        when(
+          () => adapter.startTransaction(
+            any(),
+            any(),
+            bindToScope: any(named: 'bindToScope'),
+          ),
+        ).thenReturn(mockSpan);
+        when(() => mockSpan.throwable = any()).thenReturn(null);
+        when(() => mockSpan.setStatusFailure()).thenReturn(null);
+        when(() => mockSpan.finish()).thenAnswer((_) async {});
 
-      final error = Exception('crash');
-      final handle = await provider.startTrace('op');
-      await handle!.stop(error: error);
+        final error = Exception('crash');
+        final handle = await provider.startTrace('op');
+        await handle!.stop(error: error);
 
-      verify(() => mockSpan.throwable = error).called(1);
-      verify(() => mockSpan.setStatusError()).called(1);
-      verify(() => mockSpan.finish()).called(1);
-    });
+        verify(() => mockSpan.throwable = error).called(1);
+        verify(() => mockSpan.setStatusFailure()).called(1);
+        verify(() => mockSpan.finish()).called(1);
+      },
+    );
 
-    test('trace handle stop with non-exception error sets throwable to null',
-        () async {
-      await initProvider();
-      final mockSpan = MockSentrySpan();
-      when(
-        () => adapter.startTransaction(
-          any(),
-          any(),
-          bindToScope: any(named: 'bindToScope'),
-        ),
-      ).thenReturn(mockSpan);
-      when(() => mockSpan.throwable = any()).thenReturn(null);
-      when(() => mockSpan.setStatusError()).thenReturn(null);
-      when(() => mockSpan.finish()).thenAnswer((_) async {});
+    test(
+      'trace handle stop with non-exception error sets throwable to null',
+      () async {
+        await initProvider();
+        final mockSpan = MockSentrySpan();
+        when(
+          () => adapter.startTransaction(
+            any(),
+            any(),
+            bindToScope: any(named: 'bindToScope'),
+          ),
+        ).thenReturn(mockSpan);
+        when(() => mockSpan.throwable = any()).thenReturn(null);
+        when(() => mockSpan.setStatusFailure()).thenReturn(null);
+        when(() => mockSpan.finish()).thenAnswer((_) async {});
 
-      final handle = await provider.startTrace('op');
-      await handle!.stop(error: 'string error');
+        final handle = await provider.startTrace('op');
+        await handle!.stop(error: 'string error');
 
-      verify(() => mockSpan.throwable = null).called(1);
-    });
+        verify(() => mockSpan.throwable = null).called(1);
+      },
+    );
 
     test('returns null when not enabled', () async {
       final disabled = SentryObservabilityProvider(dsn: '', adapter: adapter);

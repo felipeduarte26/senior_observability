@@ -1,13 +1,10 @@
-/// Abstracts Firebase Performance SDK calls.
+/// Abstracts Firebase Performance SDK
 abstract interface class IFirebasePerformanceAdapter {
   /// Creates and starts a named trace.
   Future<IPerformanceTrace> startTrace(String name);
 
   /// Creates and starts an HTTP metric.
-  Future<IPerformanceHttpMetric> startHttpTrace(
-    String url,
-    String method,
-  );
+  Future<IPerformanceHttpMetric> startHttpTrace(String url, String method);
 }
 
 /// Abstracts a Firebase Performance [Trace].

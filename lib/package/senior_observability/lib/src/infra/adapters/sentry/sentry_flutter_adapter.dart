@@ -25,12 +25,9 @@ final class SentryFlutterAdapter implements ISentrySdkAdapter {
     String? environment,
     required FutureOr<void> Function() appRunner,
   }) async {
-    await SentryFlutter.init(
-      (options) {
-        _configure(options, dsn, tracesSampleRate, environment);
-      },
-      appRunner: () async => await appRunner(),
-    );
+    await SentryFlutter.init((options) {
+      _configure(options, dsn, tracesSampleRate, environment);
+    }, appRunner: () async => await appRunner());
   }
 
   void _configure(
@@ -122,11 +119,10 @@ final class _SentrySpanAdapterImpl implements ISentrySpanAdapter {
   set throwable(Exception? value) => _span.throwable = value;
 
   @override
-  void setStatusOk() => _span.status = const SpanStatus.ok();
+  void setStatusSuccess() => _span.status = const SpanStatus.ok();
 
   @override
-  void setStatusError() =>
-      _span.status = const SpanStatus.internalError();
+  void setStatusFailure() => _span.status = const SpanStatus.internalError();
 
   @override
   void setData(String key, dynamic value) => _span.setData(key, value);
