@@ -155,7 +155,6 @@ lib/
 
 Os **providers** (data) dependem de interfaces definidas em domain (`IFirebaseAnalyticsAdapter`, etc.).
 Os **adapters reais** (infra) implementam essas interfaces e são injetados automaticamente.
-Em **testes**, mocks são passados via construtor — sem nenhuma dependência de SDK real.
 
 ---
 
