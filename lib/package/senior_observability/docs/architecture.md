@@ -83,7 +83,10 @@ lib/
     │       ├── mixins.dart                            Barrel file
     │       ├── senior_screen_observer.dart             SeniorScreenState (abstract class)
     │       └── senior_stateless_screen_observer.dart   SeniorStatelessScreenObserver (mixin)
-    └── senior_observability_facade.dart               SeniorObservability (final class)
+    ├── senior_observability_facade.dart               SeniorObservability (final class)
+    └── widgets/
+        ├── widgets.dart                              Barrel file
+        └── senior_tracking.dart                       SeniorTracking (StatelessWidget)
 ```
 
 ---

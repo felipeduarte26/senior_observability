@@ -59,18 +59,24 @@ class _LoginScreenState extends SeniorScreenState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: FilledButton(
-                    onPressed: _loading ? null : _login,
-                    child: _loading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Entrar'),
+                SeniorTracking(
+                  eventName: SeniorEvents.buttonClicked.value,
+                  params: {'button': 'login'},
+                  enabled: !_loading,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: _loading ? null : _login,
+                      child: _loading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Entrar'),
+                    ),
                   ),
                 ),
               ],

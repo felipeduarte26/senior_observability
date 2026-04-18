@@ -6,6 +6,7 @@ import 'screens/events_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/trace_screen.dart';
+import 'screens/tracking_screen.dart';
 import 'screens/users_screen.dart';
 
 Future<void> main() async {
@@ -49,6 +50,7 @@ class SeniorObservabilityApp extends StatelessWidget {
         '/events': (_) => const EventsScreen(),
         '/crash': (_) => const CrashTestScreen(),
         '/trace': (_) => const TraceScreen(),
+        '/tracking': (_) => const TrackingScreen(),
       },
     );
   }

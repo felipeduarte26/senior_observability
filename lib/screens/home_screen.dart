@@ -81,6 +81,12 @@ class HomeScreen extends StatelessWidget with SeniorStatelessScreenObserver {
             subtitle: 'Trace customizado com delay simulado',
             onTap: () => Navigator.of(context).pushNamed('/trace'),
           ),
+          _FeatureTile(
+            icon: Icons.ads_click_outlined,
+            title: 'Tracking',
+            subtitle: 'SeniorTracking com vários tipos de botões',
+            onTap: () => Navigator.of(context).pushNamed('/tracking'),
+          ),
         ],
       ),
     );

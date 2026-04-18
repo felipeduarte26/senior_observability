@@ -6,3 +6,4 @@ export 'src/models/models.dart';
 export 'src/navigation/navigation.dart';
 export 'src/providers/providers.dart';
 export 'src/senior_observability_facade.dart';
+export 'src/widgets/widgets.dart';
