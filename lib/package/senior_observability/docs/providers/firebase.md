@@ -22,21 +22,21 @@ Para visualizá-los, é necessário cadastrar cada parâmetro como **Definição
 2. Clique em **Criar dimensão personalizada**
 3. Preencha os campos:
 
-| Campo | O que preencher |
-| --- | --- |
-| **Nome da dimensão** | Nome legível para os relatórios (ex: `Product ID`) |
-| **Escopo** | `Evento` para parâmetros de evento, `Usuário` para propriedades de usuário |
-| **Descrição** | Opcional |
+| Campo                   | O que preencher                                                                                           |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Nome da dimensão**    | Nome legível para os relatórios (ex: `Product ID`)                                                        |
+| **Escopo**              | `Evento` para parâmetros de evento, `Usuário` para propriedades de usuário                                |
+| **Descrição**           | Opcional                                                                                                  |
 | **Parâmetro do evento** | Selecione o parâmetro no dropdown (o Firebase detecta automaticamente os parâmetros já enviados pelo app) |
 
 4. Salvar e repetir para cada parâmetro
 
 ### Escopo: Evento vs Usuário
 
-| Escopo | Quando usar | Exemplos |
-| --- | --- | --- |
-| **Evento** | Parâmetros que mudam a cada evento | `product_id`, `status_code`, `method`, `endpoint` |
-| **Usuário** | Propriedades fixas do usuário (via `setUser`) | `tenant`, `email`, `user_name` |
+| Escopo      | Quando usar                                   | Exemplos                                          |
+| ----------- | --------------------------------------------- | ------------------------------------------------- |
+| **Evento**  | Parâmetros que mudam a cada evento            | `product_id`, `status_code`, `method`, `endpoint` |
+| **Usuário** | Propriedades fixas do usuário (via `setUser`) | `tenant`, `email`, `user_name`                    |
 
 ### As 3 abas de Custom Definitions
 
@@ -71,31 +71,27 @@ No Firebase Console, a tela de Definições personalizadas possui três abas:
 
 #### Resumo
 
-| Aba | O que é | Origem dos dados | Exemplo |
-| --- | --- | --- | --- |
-| **Dimensões** | Texto categórico | Enviado pelo app | `product_id`, `tenant` |
-| **Métricas** | Número mensurável | Enviado pelo app | `value`, `response_time` |
-| **Métricas calculadas** | Fórmula sobre métricas | Calculado no Firebase | `receita / usuarios` |
+| Aba                     | O que é                | Origem dos dados      | Exemplo                  |
+| ----------------------- | ---------------------- | --------------------- | ------------------------ |
+| **Dimensões**           | Texto categórico       | Enviado pelo app      | `product_id`, `tenant`   |
+| **Métricas**            | Número mensurável      | Enviado pelo app      | `value`, `response_time` |
+| **Métricas calculadas** | Fórmula sobre métricas | Calculado no Firebase | `receita / usuarios`     |
 
 ### Limites do Firebase Analytics
 
-| Recurso | Limite |
-| --- | --- |
-| Dimensões personalizadas | 50 por projeto |
-| Métricas personalizadas | 50 por projeto |
-| Parâmetros por evento | 25 por evento |
-| Tamanho do nome do parâmetro | 40 caracteres |
-| Tamanho do valor (string) | 100 caracteres |
+| Recurso                      | Limite         |
+| ---------------------------- | -------------- |
+| Dimensões personalizadas     | 50 por projeto |
+| Métricas personalizadas      | 50 por projeto |
+| Parâmetros por evento        | 25 por evento  |
+| Tamanho do nome do parâmetro | 40 caracteres  |
+| Tamanho do valor (string)    | 100 caracteres |
 
 ### Dados retroativos
 
 O Firebase **não retroage** dados de dimensões/métricas recém-cadastradas. Eventos enviados **antes** do cadastro não terão os parâmetros visíveis nos relatórios. Apenas eventos enviados **após** o cadastro aparecerão com os parâmetros associados.
 
 > Após cadastrar, os dados podem levar **até 24h** para aparecer nos relatórios. Eventos novos já coletam os parâmetros imediatamente.
-
-### Alternativa: BigQuery Export
-
-Para análise completa sem limitação de dimensões, ative o **BigQuery Export** no Firebase. Todos os parâmetros de todos os eventos ficam disponíveis em SQL, sem necessidade de cadastro manual.
 
 ## Métricas HTTP
 
