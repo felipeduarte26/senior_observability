@@ -81,7 +81,7 @@ lib/
     │   ├── senior_navigator_observer.dart             SeniorNavigatorObserver (final class)
     │   └── mixins/
     │       ├── mixins.dart                            Barrel file
-    │       ├── senior_screen_observer.dart             SeniorScreenObserver (mixin)
+    │       ├── senior_screen_observer.dart             SeniorScreenState (abstract class)
     │       └── senior_stateless_screen_observer.dart   SeniorStatelessScreenObserver (mixin)
     └── senior_observability_facade.dart               SeniorObservability (final class)
 ```

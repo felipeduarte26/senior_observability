@@ -10,8 +10,7 @@ class TraceScreen extends StatefulWidget {
   State<TraceScreen> createState() => _TraceScreenState();
 }
 
-class _TraceScreenState extends State<TraceScreen>
-    with SeniorScreenObserver<TraceScreen> {
+class _TraceScreenState extends SeniorScreenState<TraceScreen> {
   bool _running = false;
   String? _result;
 

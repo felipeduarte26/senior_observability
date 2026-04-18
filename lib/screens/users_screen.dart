@@ -12,8 +12,7 @@ class UsersScreen extends StatefulWidget {
   State<UsersScreen> createState() => _UsersScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen>
-    with SeniorScreenObserver<UsersScreen> {
+class _UsersScreenState extends SeniorScreenState<UsersScreen> {
   final _client = SeniorHttpClient();
   List<dynamic>? _users;
   String? _error;

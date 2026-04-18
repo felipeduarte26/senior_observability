@@ -8,8 +8,7 @@ class EventsScreen extends StatefulWidget {
   State<EventsScreen> createState() => _EventsScreenState();
 }
 
-class _EventsScreenState extends State<EventsScreen>
-    with SeniorScreenObserver<EventsScreen> {
+class _EventsScreenState extends SeniorScreenState<EventsScreen> {
   final _logs = <String>[];
 
   @override

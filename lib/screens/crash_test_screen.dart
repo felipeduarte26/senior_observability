@@ -8,8 +8,7 @@ class CrashTestScreen extends StatefulWidget {
   State<CrashTestScreen> createState() => _CrashTestScreenState();
 }
 
-class _CrashTestScreenState extends State<CrashTestScreen>
-    with SeniorScreenObserver<CrashTestScreen> {
+class _CrashTestScreenState extends SeniorScreenState<CrashTestScreen> {
   String? _status;
 
   @override

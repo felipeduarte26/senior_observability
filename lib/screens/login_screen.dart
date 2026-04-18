@@ -8,8 +8,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with SeniorScreenObserver<LoginScreen> {
+class _LoginScreenState extends SeniorScreenState<LoginScreen> {
   final _emailController = TextEditingController(text: 'user@senior.com.br');
   final _nameController = TextEditingController(text: 'Felipe');
   bool _loading = false;

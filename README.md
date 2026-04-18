@@ -50,7 +50,7 @@ Escolha apenas os providers que precisa — basta adicioná-los na lista.
 | [Primeiros Passos](lib/package/senior_observability/docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                                  |
 | [Eventos e Analytics](lib/package/senior_observability/docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                   |
 | [Error Tracking](lib/package/senior_observability/docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                            |
-| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md)    | `SeniorScreenObserver`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
+| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md)    | `SeniorScreenState`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver`    |
 | **Providers**                                                                        |                                                                                    |
 | [Firebase](lib/package/senior_observability/docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                   |
 | [Microsoft Clarity](lib/package/senior_observability/docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                      |

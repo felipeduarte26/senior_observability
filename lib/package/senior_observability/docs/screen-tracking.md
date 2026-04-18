@@ -2,9 +2,9 @@
 
 Três abordagens disponíveis — escolha a que melhor se encaixa.
 
-## Abordagem 1 — `SeniorScreenObserver` (StatefulWidget)
+## Abordagem 1 — `SeniorScreenState` (StatefulWidget)
 
-Mixin para `State<T>`. Dispara `logScreen` automaticamente no `initState`:
+Classe abstrata que estende `State<T>`. Dispara `logScreen` automaticamente no `initState`:
 
 ```dart
 class HomeScreen extends StatefulWidget {
@@ -14,8 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SeniorScreenObserver<HomeScreen> {
+class _HomeScreenState extends SeniorScreenState<HomeScreen> {
   // screenName = 'HomeScreen' (automático via widget.runtimeType)
 
   @override
@@ -65,9 +64,9 @@ class ProfileScreen extends StatelessWidget
 
 ## Comparativo
 
-| Mixin                           | Quando usar                                                       |
+| Classe / Mixin                  | Quando usar                                                       |
 | ------------------------------- | ----------------------------------------------------------------- |
-| `SeniorScreenObserver`          | Telas `StatefulWidget` — rastreamento no `initState`              |
+| `SeniorScreenState`             | Telas `StatefulWidget` — rastreamento no `initState`              |
 | `SeniorNavigatorObserver`       | Apps com rotas nomeadas — configuração global única               |
 | `SeniorStatelessScreenObserver` | Telas `StatelessWidget` — rastreamento via `addPostFrameCallback` |
 
