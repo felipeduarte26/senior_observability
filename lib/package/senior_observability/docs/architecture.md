@@ -153,20 +153,6 @@ lib/
     └── senior_observability_facade.dart                 SeniorObservability (final class)
 ```
 
-## Fluxo de dependências
-
-```
-presentation ──► data ──► domain ◄── infra
-                  │         ▲          │
-                  │         │          │
-                  │    (interfaces     │
-                  │     dos adapters)  │
-                  │                    │
-                  └────── facade ──────┘
-```
-
-A regra principal: **domain não importa nada das outras camadas**.
-
 Os **providers** (data) dependem de interfaces definidas em domain (`IFirebaseAnalyticsAdapter`, etc.).
 Os **adapters reais** (infra) implementam essas interfaces e são injetados automaticamente.
 Em **testes**, mocks são passados via construtor — sem nenhuma dependência de SDK real.
