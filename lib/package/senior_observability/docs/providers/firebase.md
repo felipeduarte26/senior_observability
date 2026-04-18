@@ -16,6 +16,19 @@ Para visualizá-los, é necessário cadastrar cada parâmetro como **Definição
 
 > Isso **não pode ser feito por código** no client SDK. O `firebase_analytics` do Flutter apenas envia dados. O registro de dimensões/métricas é uma operação exclusiva do console.
 
+### Propriedades do SeniorUser
+
+Ao chamar `SeniorObservability.setUser(...)`, o provider registra automaticamente as seguintes **User Properties** no Firebase Analytics:
+
+| Propriedade   | Origem                         | Cadastrar como               |
+| ------------- | ------------------------------ | ---------------------------- |
+| `tenant`      | `SeniorUser.tenant`            | Dimensão — escopo **Usuário** |
+| `email`       | `SeniorUser.email`             | Dimensão — escopo **Usuário** |
+| `user_name`   | `SeniorUser.name` (se não null)| Dimensão — escopo **Usuário** |
+| chaves extras | `SeniorUser.extras`            | Dimensão — escopo **Usuário** |
+
+> **Importante:** cada uma dessas propriedades precisa ser cadastrada manualmente como Custom Definition no Firebase Console para aparecer nos relatórios. Sem o cadastro, os dados são coletados mas ficam invisíveis.
+
 ### Como cadastrar
 
 1. Acesse **Firebase Console** > **Analytics** > **Definições personalizadas** (Custom Definitions)
