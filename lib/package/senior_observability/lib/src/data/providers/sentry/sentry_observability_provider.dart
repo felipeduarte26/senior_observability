@@ -68,8 +68,10 @@ final class SentryObservabilityProvider
   /// Optional callback that controls how Sentry groups errors into issues.
   final SentryFingerprintBuilder? fingerprintBuilder;
 
+  /// Sentry SDK adapter.
   final ISentrySdkAdapter _adapter;
 
+  /// Whether the provider is using external adapters.
   bool _enabled = false;
 
   /// Creates a [SentryObservabilityProvider].
@@ -144,10 +146,7 @@ final class SentryObservabilityProvider
   Future<void> setUser(SeniorUser user) async {
     if (!_enabled) return;
 
-    final tags = <String, String>{
-      'tenant': user.tenant,
-      'email': user.email,
-    };
+    final tags = <String, String>{'tenant': user.tenant, 'email': user.email};
     if (user.name != null) tags['user_name'] = user.name!;
 
     if (user.extras case final extras?) {
@@ -201,8 +200,9 @@ final class SentryObservabilityProvider
   Future<void> logError(dynamic exception, StackTrace? stackTrace) async {
     if (!_enabled) return;
 
-    final actualException =
-        exception is FlutterErrorDetails ? exception.exception : exception;
+    final actualException = exception is FlutterErrorDetails
+        ? exception.exception
+        : exception;
     final actualStack = exception is FlutterErrorDetails
         ? (exception.stack ?? stackTrace)
         : stackTrace;
@@ -219,11 +219,7 @@ final class SentryObservabilityProvider
   @override
   Future<ITraceHandle?> startTrace(String name) async {
     if (!_enabled) return null;
-    final span = _adapter.startTransaction(
-      name,
-      'custom',
-      bindToScope: true,
-    );
+    final span = _adapter.startTransaction(name, 'custom', bindToScope: true);
     return _SentryTraceHandle(span);
   }
 
