@@ -1,7 +1,13 @@
 library;
 
-export 'src/data/data.dart';
-export 'src/domain/domain.dart';
-export 'src/infra/infra.dart';
-export 'src/presentation/presentation.dart';
+// ── Facade ──────────────────────────────────────────────────────────
 export 'src/senior_observability_facade.dart';
+
+// ── Domain — entities & contracts ───────────────────────────────────
+export 'src/domain/domain.dart';
+
+// ── Providers ───────────────────────────────────────────────────────
+export 'src/data/providers/providers.dart';
+
+// ── Presentation — navigation, widgets ──────────────────────────────
+export 'src/presentation/presentation.dart';

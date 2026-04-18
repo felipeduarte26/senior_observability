@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:senior_observability/senior_observability.dart';
+import 'package:senior_observability/src/data/models/models.dart';
 
 void main() {
   group('SeniorUserModel', () {

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:senior_observability/senior_observability.dart';
+import 'package:senior_observability/src/data/composite/composite.dart';
+import 'package:senior_observability/src/infra/logger/logger.dart';
 import '../../mocks.dart';
 
 void main() {
