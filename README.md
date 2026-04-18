@@ -7,18 +7,24 @@ Package Flutter de observabilidade que integra **Firebase**, **Microsoft Clarity
 ```
 ┌─────────────────────────────────────────────────────┐
 │                SeniorObservability                  │
-│                                                     │  ← Facade Patterns
+│                                                     │  ← Facade Pattern
 └──────────────────────┬──────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
-         │ CompositeObservability    │  ← Composite Patterns
+         │ CompositeObservability    │  ← Composite Pattern
          │      Provider             │
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Patterns
-    │ Provider │ │ Provider │ │   Provider   │
-    └──────────┘ └──────────┘ └──────────────┘
+    │ Firebase │ │ Clarity  │ │    Sentry    │
+    │ Provider │ │ Provider │ │   Provider   │ ← Strategy Pattern
+    └────┬─────┘ └────┬─────┘ └──────┬───────┘
+         │            │              │
+         ▼            ▼              ▼
+    ┌─────────┐ ┌──────────┐ ┌────────────┐
+    │Firebase │ │ Clarity  │ │  Sentry    │
+    │Adapters │ │ Adapter  │ │  Adapter   │   ← Adapter Pattern
+    └─────────┘ └──────────┘ └────────────┘
 ```
 
 ## Quick Start
@@ -45,17 +51,17 @@ Escolha apenas os providers que precisa — basta adicioná-los na lista.
 
 ## Documentação
 
-| Documento                                                                            | Descrição                                                                          |
-| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [Primeiros Passos](lib/package/senior_observability/docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                                  |
-| [Eventos e Analytics](lib/package/senior_observability/docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                   |
-| [Error Tracking](lib/package/senior_observability/docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                            |
-| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md)    | `SeniorScreenState`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver`    |
-| **Providers**                                                                        |                                                                                    |
-| [Firebase](lib/package/senior_observability/docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                   |
-| [Microsoft Clarity](lib/package/senior_observability/docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                      |
-| [Sentry](lib/package/senior_observability/docs/providers/sentry.md)                  | Error tracking, fingerprint customizado, AppRunner integration                     |
-| **Avançado**                                                                         |                                                                                    |
-| [Provider Customizado](lib/package/senior_observability/docs/custom-provider.md)     | Como criar e registrar seu próprio provider                                        |
-| [Logging](lib/package/senior_observability/docs/logging.md)                          | Sistema de logging interno, padrão Adapter                                         |
-| [Arquitetura](lib/package/senior_observability/docs/architecture.md)                 | Princípios, padrões de projeto, estrutura do package                               |
+| Documento                                                                            | Descrição                                                                       |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [Primeiros Passos](lib/package/senior_observability/docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                               |
+| [Eventos e Analytics](lib/package/senior_observability/docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                |
+| [Error Tracking](lib/package/senior_observability/docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                         |
+| [Rastreamento de Telas](lib/package/senior_observability/docs/screen-tracking.md)    | `SeniorScreenState`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
+| **Providers**                                                                        |                                                                                 |
+| [Firebase](lib/package/senior_observability/docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                |
+| [Microsoft Clarity](lib/package/senior_observability/docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                   |
+| [Sentry](lib/package/senior_observability/docs/providers/sentry.md)                  | Error tracking, fingerprint customizado, AppRunner integration                  |
+| **Avançado**                                                                         |                                                                                 |
+| [Provider Customizado](lib/package/senior_observability/docs/custom-provider.md)     | Como criar e registrar seu próprio provider                                     |
+| [Logging](lib/package/senior_observability/docs/logging.md)                          | Sistema de logging interno, padrão Adapter                                      |
+| [Arquitetura](lib/package/senior_observability/docs/architecture.md)                 | Princípios, padrões de projeto, estrutura do package                            |

@@ -4,12 +4,12 @@
 
 O package segue os princípios da **Clean Architecture**, com 4 camadas claramente separadas:
 
-| Camada | Responsabilidade | Depende de |
-|---|---|---|
-| **domain** | Interfaces (contracts), entities puras e interfaces de adapters SDK. Zero dependência externa. | Nada |
-| **data** | Implementações concretas: providers, composite, models com serialização. | domain |
-| **infra** | Suporte transversal: logging e adapters que encapsulam SDKs (Firebase, Sentry, Clarity). | domain |
-| **presentation** | Tudo que toca a UI: navigation observers, mixins de State, widgets. | domain, data (indiretamente) |
+| Camada           | Responsabilidade                                                                               | Depende de                   |
+| ---------------- | ---------------------------------------------------------------------------------------------- | ---------------------------- |
+| **domain**       | Interfaces (contracts), entities puras e interfaces de adapters SDK. Zero dependência externa. | Nada                         |
+| **data**         | Implementações concretas: providers, composite, models com serialização.                       | domain                       |
+| **infra**        | Suporte transversal: logging e adapters que encapsulam SDKs (Firebase, Sentry, Clarity).       | domain                       |
+| **presentation** | Tudo que toca a UI: navigation observers, mixins de State, widgets.                            | domain, data (indiretamente) |
 
 A **facade** (`SeniorObservability`) fica na raiz de `src/` e orquestra todas as camadas.
 
@@ -36,15 +36,14 @@ A **facade** (`SeniorObservability`) fica na raiz de `src/` e orquestra todas as
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Pattern
-    │ Provider │ │ Provider │ │   Provider   │
+    │ Firebase │ │ Clarity  │ │    Sentry    │
+    │ Provider │ │ Provider │ │   Provider   │ ← Strategy Pattern
     └────┬─────┘ └────┬─────┘ └──────┬───────┘
          │            │              │
-         ▼            ▼              ▼             ← Adapter Pattern (DI)
+         ▼            ▼              ▼
     ┌─────────┐ ┌──────────┐ ┌────────────┐
     │Firebase │ │ Clarity  │ │  Sentry    │
-    │Adapters │ │ Adapter  │ │  Adapter   │
-    │(3 intf.)│ │(1 intf.) │ │ (1 intf.)  │
+    │Adapters │ │ Adapter  │ │  Adapter   │   ← Adapter Pattern
     └─────────┘ └──────────┘ └────────────┘
 ```
 

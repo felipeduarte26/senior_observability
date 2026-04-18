@@ -16,14 +16,14 @@ Package Flutter de observabilidade que integra **Firebase**, **Microsoft Clarity
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Pattern
-    │ Provider │ │ Provider │ │   Provider   │
+    │ Firebase │ │ Clarity  │ │    Sentry    │
+    │ Provider │ │ Provider │ │   Provider   │ ← Strategy Pattern
     └────┬─────┘ └────┬─────┘ └──────┬───────┘
          │            │              │
-         ▼            ▼              ▼             ← Adapter Pattern (DI)
+         ▼            ▼              ▼
     ┌─────────┐ ┌──────────┐ ┌────────────┐
     │Firebase │ │ Clarity  │ │  Sentry    │
-    │Adapters │ │ Adapter  │ │  Adapter   │
+    │Adapters │ │ Adapter  │ │  Adapter   │   ← Adapter Pattern
     └─────────┘ └──────────┘ └────────────┘
 ```
 
@@ -51,17 +51,17 @@ Escolha apenas os providers que precisa — basta adicioná-los na lista.
 
 ## Documentação
 
-| Documento                                           | Descrição                                                                          |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [Primeiros Passos](docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                                  |
-| [Eventos e Analytics](docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                   |
-| [Error Tracking](docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                            |
-| [Rastreamento de Telas](docs/screen-tracking.md)    | `SeniorScreenState`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver`    |
-| **Providers**                                       |                                                                                    |
-| [Firebase](docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                   |
-| [Microsoft Clarity](docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                      |
-| [Sentry](docs/providers/sentry.md)                  | Error tracking, fingerprint customizado, AppRunner integration                     |
-| **Avançado**                                        |                                                                                    |
-| [Provider Customizado](docs/custom-provider.md)     | Como criar e registrar seu próprio provider                                        |
-| [Logging](docs/logging.md)                          | Sistema de logging interno, padrão Adapter                                         |
-| [Arquitetura](docs/architecture.md)                 | Princípios, padrões de projeto, estrutura do package                               |
+| Documento                                           | Descrição                                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [Primeiros Passos](docs/getting-started.md)         | Inicialização, definir usuário, acessar providers                               |
+| [Eventos e Analytics](docs/events-and-analytics.md) | Eventos customizados, parâmetros, `SeniorEvents`                                |
+| [Error Tracking](docs/error-tracking.md)            | Captura manual e automática (3 camadas)                                         |
+| [Rastreamento de Telas](docs/screen-tracking.md)    | `SeniorScreenState`, `SeniorNavigatorObserver`, `SeniorStatelessScreenObserver` |
+| **Providers**                                       |                                                                                 |
+| [Firebase](docs/providers/firebase.md)              | Analytics, Crashlytics, Performance (HTTP traces, custom traces)                |
+| [Microsoft Clarity](docs/providers/clarity.md)      | Session replay, heatmaps, session adapter, widgets de masking                   |
+| [Sentry](docs/providers/sentry.md)                  | Error tracking, fingerprint customizado, AppRunner integration                  |
+| **Avançado**                                        |                                                                                 |
+| [Provider Customizado](docs/custom-provider.md)     | Como criar e registrar seu próprio provider                                     |
+| [Logging](docs/logging.md)                          | Sistema de logging interno, padrão Adapter                                      |
+| [Arquitetura](docs/architecture.md)                 | Princípios, padrões de projeto, estrutura do package                            |
