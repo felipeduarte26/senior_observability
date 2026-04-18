@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:senior_observability/senior_observability.dart';
+import 'package:senior_observability/src/domain/contracts/providers/sentry/sentry_adapters.dart';
 
 class MockSentryAdapter extends Mock implements ISentrySdkAdapter {}
 
@@ -16,7 +17,7 @@ void main() {
   setUp(() {
     adapter = MockSentryAdapter();
 
-    provider = SentryObservabilityProvider(dsn: dsn, adapter: adapter);
+    provider = SentryObservabilityProvider.test(dsn: dsn, adapter: adapter);
   });
 
   setUpAll(() {
@@ -41,7 +42,7 @@ void main() {
     });
 
     test('skips init when dsn is empty', () async {
-      final emptyProvider = SentryObservabilityProvider(
+      final emptyProvider = SentryObservabilityProvider.test(
         dsn: '',
         adapter: adapter,
       );
@@ -58,7 +59,7 @@ void main() {
     });
 
     test('passes environment and tracesSampleRate', () async {
-      final customProvider = SentryObservabilityProvider(
+      final customProvider = SentryObservabilityProvider.test(
         dsn: dsn,
         tracesSampleRate: 0.5,
         environment: 'staging',
@@ -128,7 +129,7 @@ void main() {
     });
 
     test('runs appRunner even when dsn is empty', () async {
-      final emptyProvider = SentryObservabilityProvider(
+      final emptyProvider = SentryObservabilityProvider.test(
         dsn: '',
         adapter: adapter,
       );
@@ -228,7 +229,7 @@ void main() {
     });
 
     test('skips when not enabled (empty dsn)', () async {
-      final disabled = SentryObservabilityProvider(dsn: '', adapter: adapter);
+      final disabled = SentryObservabilityProvider.test(dsn: '', adapter: adapter);
       await disabled.init();
 
       await disabled.setUser(const SeniorUser(tenant: 'x', email: 'y'));
@@ -421,7 +422,7 @@ void main() {
     });
 
     test('uses fingerprintBuilder when provided', () async {
-      final custom = SentryObservabilityProvider(
+      final custom = SentryObservabilityProvider.test(
         dsn: dsn,
         adapter: adapter,
         fingerprintBuilder: (_, __) => ['custom-group'],
@@ -558,7 +559,7 @@ void main() {
     );
 
     test('returns null when not enabled', () async {
-      final disabled = SentryObservabilityProvider(dsn: '', adapter: adapter);
+      final disabled = SentryObservabilityProvider.test(dsn: '', adapter: adapter);
       await disabled.init();
 
       final handle = await disabled.startTrace('op');
@@ -682,7 +683,7 @@ void main() {
     });
 
     test('skips close when not enabled', () async {
-      final disabled = SentryObservabilityProvider(dsn: '', adapter: adapter);
+      final disabled = SentryObservabilityProvider.test(dsn: '', adapter: adapter);
       await disabled.init();
       await disabled.dispose();
 

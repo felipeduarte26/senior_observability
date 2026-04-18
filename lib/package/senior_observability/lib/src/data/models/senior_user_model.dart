@@ -9,6 +9,12 @@ import '../../domain/entities/senior_user.dart';
 /// data layer.
 final class SeniorUserModel extends SeniorUser {
   /// Creates a [SeniorUserModel].
+  ///
+  /// - **[tenant]**: organization/tenant identifier.
+  /// - **[email]**: authenticated user's email address.
+  /// - **[name]**: user display name.
+  /// - **[extras]**: project-specific metadata propagated as tags
+  ///   to all Providers.
   const SeniorUserModel({
     required super.tenant,
     required super.email,
@@ -25,16 +31,14 @@ final class SeniorUserModel extends SeniorUser {
   );
 
   /// Converts to a string map for use in tags and provider contexts.
-  Map<String, String> toMap() {
-    final map = <String, String>{'tenant': tenant, 'email': email};
-    if (name case final n?) map['name'] = n;
-    if (extras case final e?) {
-      for (final MapEntry(:key, :value) in e.entries) {
-        if (value != null) map[key] = value.toString();
-      }
-    }
-    return map;
-  }
+  Map<String, String> toMap() => {
+    'tenant': tenant,
+    'email': email,
+    if (name case final n?) 'name': n,
+    if (extras case final e?)
+      for (final MapEntry(:key, :value) in e.entries)
+        if (value != null) key: value.toString(),
+  };
 
   @override
   String toString() =>

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:senior_observability/senior_observability.dart';
+import 'package:senior_observability/src/domain/contracts/providers/firebase/firebase_adapters.dart';
 
 class MockAnalytics extends Mock implements IFirebaseAnalyticsAdapter {}
 
@@ -23,7 +24,7 @@ void main() {
     crashlytics = MockCrashlytics();
     performance = MockPerformance();
 
-    provider = FirebaseObservabilityProvider(
+    provider = FirebaseObservabilityProvider.test(
       analytics: analytics,
       crashlytics: crashlytics,
       performance: performance,

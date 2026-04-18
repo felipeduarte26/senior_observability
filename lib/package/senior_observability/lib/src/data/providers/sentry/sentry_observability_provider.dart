@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../../domain/contracts/providers/sentry/sentry_adapters.dart';
 import '../../../domain/domain.dart';
 import '../../../infra/adapters/sentry/sentry_flutter_adapter.dart';
 import '../../../infra/logger/logger.dart';
@@ -66,20 +68,28 @@ final class SentryObservabilityProvider
   /// Optional callback that controls how Sentry groups errors into issues.
   final SentryFingerprintBuilder? fingerprintBuilder;
 
-  late final ISentrySdkAdapter _adapter;
+  final ISentrySdkAdapter _adapter;
 
   bool _enabled = false;
 
   /// Creates a [SentryObservabilityProvider].
-  ///
-  /// Pass [adapter] to override the real Sentry SDK calls (useful for testing).
   SentryObservabilityProvider({
     required this.dsn,
     this.tracesSampleRate = 1.0,
     this.environment,
     this.fingerprintBuilder,
-    ISentrySdkAdapter? adapter,
-  }) : _adapter = adapter ?? SentryFlutterAdapter();
+  }) : _adapter = SentryFlutterAdapter();
+
+  /// Creates a [SentryObservabilityProvider] with an injected adapter
+  /// for unit testing.
+  @visibleForTesting
+  SentryObservabilityProvider.test({
+    required this.dsn,
+    required ISentrySdkAdapter adapter,
+    this.tracesSampleRate = 1.0,
+    this.environment,
+    this.fingerprintBuilder,
+  }) : _adapter = adapter;
 
   bool get _hasDsn => dsn.isNotEmpty;
 

@@ -12,7 +12,10 @@ final class _FirebaseTraceHandle implements ITraceHandle {
   @override
   Future<void> stop({dynamic error}) async {
     if (error != null) {
-      _trace.putAttribute('error', error.toString().take(100));
+      _trace.putAttribute(
+        'error',
+        error.toString().take(FirebaseObservabilityProvider._maxAttributeValue),
+      );
     }
     await _trace.stop();
   }

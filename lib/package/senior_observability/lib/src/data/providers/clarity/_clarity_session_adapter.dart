@@ -48,7 +48,9 @@ extension type const _ClaritySessionAdapter._(
   /// Sets a custom session ID for filtering on the Clarity dashboard.
   bool setSessionId(String sessionId) {
     if (!isInitialized) return false;
-    return _adapter.setCustomSessionId(sessionId._take(255));
+    return _adapter.setCustomSessionId(
+      sessionId._take(ClarityObservabilityProvider._maxFieldLength),
+    );
   }
 
   /// Registers a callback invoked whenever a Clarity session starts.

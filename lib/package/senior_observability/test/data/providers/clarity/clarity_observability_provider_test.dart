@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:senior_observability/senior_observability.dart';
+import 'package:senior_observability/src/domain/contracts/providers/clarity/clarity_adapters.dart';
 
 class MockClarityAdapter extends Mock implements IClaritySdkAdapter {}
 
@@ -22,7 +23,7 @@ void main() {
   group('init', () {
     testWidgets('schedules post-frame callback without crashing',
         (tester) async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -33,7 +34,7 @@ void main() {
     });
 
     test('skips when projectId is empty', () async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: '',
         adapter: adapter,
       );
@@ -46,7 +47,7 @@ void main() {
     testWidgets('handles initialize returning false', (tester) async {
       when(() => adapter.initialize(any(), any())).thenReturn(false);
 
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -66,7 +67,7 @@ void main() {
       when(() => adapter.initialize(any(), any()))
           .thenThrow(Exception('sdk crash'));
 
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -85,7 +86,7 @@ void main() {
 
   group('initWithAppRunner', () {
     testWidgets('runs appRunner and schedules clarity init', (tester) async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -101,7 +102,7 @@ void main() {
     });
 
     test('runs appRunner even when projectId is empty', () async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: '',
         adapter: adapter,
       );
@@ -116,7 +117,7 @@ void main() {
     });
 
     testWidgets('handles appRunner failure gracefully', (tester) async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -165,7 +166,7 @@ void main() {
     });
 
     test('skips when not initialized', () async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -279,7 +280,7 @@ void main() {
     });
 
     test('skips when not initialized', () async {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -347,7 +348,7 @@ void main() {
     });
 
     test('session methods return false when not initialized', () {
-      final provider = ClarityObservabilityProvider(
+      final provider = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );
@@ -362,7 +363,7 @@ void main() {
     });
 
     test('isInitialized reflects provider state', () {
-      final notInit = ClarityObservabilityProvider(
+      final notInit = ClarityObservabilityProvider.test(
         projectId: 'test_id',
         adapter: adapter,
       );

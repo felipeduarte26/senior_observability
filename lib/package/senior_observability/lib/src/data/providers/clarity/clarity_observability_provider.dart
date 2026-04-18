@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../domain/contracts/providers/clarity/clarity_adapters.dart';
 import '../../../domain/domain.dart';
 import '../../../infra/adapters/clarity/clarity_flutter_adapter.dart';
 import '../../../infra/logger/logger.dart';
@@ -37,29 +38,38 @@ part '_string_take_extension.dart';
 /// ```
 final class ClarityObservabilityProvider
     implements IObservabilityProvider, IAppRunnerAwareProvider {
+  /// Max characters for custom tag keys, values and event names.
+  static const _maxFieldLength = 255;
+
   /// Clarity project ID from the dashboard **Settings** page.
   final String projectId;
 
+  /// Clarity SDK adapter.
   final IClaritySdkAdapter _adapter;
 
   /// Whether the Clarity SDK is initialized.
   bool _initialized = false;
 
   /// Creates a [ClarityObservabilityProvider].
-  ///
-  /// Pass [adapter] to override the real Clarity SDK calls (useful for testing).
-  ClarityObservabilityProvider({
-    required this.projectId,
-    IClaritySdkAdapter? adapter,
-  }) : _adapter = adapter ?? ClarityFlutterAdapter();
+  ClarityObservabilityProvider({required this.projectId})
+    : _adapter = ClarityFlutterAdapter();
 
-  /// Creates a pre-initialized provider for unit testing.
+  /// Creates a [ClarityObservabilityProvider] with an injected adapter
+  /// for unit testing.
+  @visibleForTesting
+  ClarityObservabilityProvider.test({
+    required this.projectId,
+    required IClaritySdkAdapter adapter,
+  }) : _adapter = adapter;
+
+  /// Creates a pre-initialized provider with an injected adapter
+  /// for unit testing feature methods directly.
   @visibleForTesting
   ClarityObservabilityProvider.initialized({
     required this.projectId,
     required IClaritySdkAdapter adapter,
-  })  : _adapter = adapter,
-        _initialized = true;
+  }) : _adapter = adapter,
+       _initialized = true;
 
   bool get _hasProjectId => projectId.isNotEmpty;
 
@@ -144,18 +154,21 @@ final class ClarityObservabilityProvider
   Future<void> setUser(SeniorUser user) async {
     if (!_initialized) return;
 
-    _adapter.setCustomUserId(user.email._take(255));
-    _adapter.setCustomTag('tenant', user.tenant._take(255));
-    _adapter.setCustomTag('email', user.email._take(255));
+    _adapter.setCustomUserId(user.email._take(_maxFieldLength));
+    _adapter.setCustomTag('tenant', user.tenant._take(_maxFieldLength));
+    _adapter.setCustomTag('email', user.email._take(_maxFieldLength));
 
     if (user.name case final name?) {
-      _adapter.setCustomTag('user_name', name._take(255));
+      _adapter.setCustomTag('user_name', name._take(_maxFieldLength));
     }
 
     if (user.extras case final extras?) {
       for (final MapEntry(:key, :value) in extras.entries) {
         if (value != null) {
-          _adapter.setCustomTag(key._take(255), value.toString()._take(255));
+          _adapter.setCustomTag(
+            key._take(_maxFieldLength),
+            value.toString()._take(_maxFieldLength),
+          );
         }
       }
     }
@@ -165,13 +178,16 @@ final class ClarityObservabilityProvider
   Future<void> logEvent(String name, {Map<String, dynamic>? params}) async {
     if (!_initialized) return;
 
-    _adapter.sendCustomEvent(name._take(254));
+    _adapter.sendCustomEvent(name._take(_maxFieldLength));
 
     if (params != null) {
       for (final MapEntry(:key, :value) in params.entries) {
         final stringValue = value?.toString() ?? '';
         if (stringValue.isNotEmpty) {
-          _adapter.setCustomTag(key._take(255), stringValue._take(255));
+          _adapter.setCustomTag(
+            key._take(_maxFieldLength),
+            stringValue._take(_maxFieldLength),
+          );
         }
       }
     }
@@ -183,7 +199,7 @@ final class ClarityObservabilityProvider
     Map<String, dynamic>? params,
   }) async {
     if (!_initialized) return;
-    _adapter.setCurrentScreenName(screenName._take(255));
+    _adapter.setCurrentScreenName(screenName._take(_maxFieldLength));
   }
 
   @override
@@ -194,8 +210,8 @@ final class ClarityObservabilityProvider
         ? exception.exceptionAsString()
         : exception.toString();
 
-    _adapter.sendCustomEvent('error: $message'._take(254));
-    _adapter.setCustomTag('last_error', message._take(255));
+    _adapter.sendCustomEvent('error: $message'._take(_maxFieldLength));
+    _adapter.setCustomTag('last_error', message._take(_maxFieldLength));
   }
 
   @override

@@ -24,12 +24,7 @@ final class CompositeObservabilityProvider implements IObservabilityProvider {
     : _providers = List.unmodifiable(providers);
 
   /// Returns the first registered provider of type [T], or `null`.
-  T? findProvider<T>() {
-    for (final provider in _providers) {
-      if (provider is T) return provider as T;
-    }
-    return null;
-  }
+  T? findProvider<T>() => _providers.whereType<T>().firstOrNull;
 
   /// Initializes every registered provider.
   @override
