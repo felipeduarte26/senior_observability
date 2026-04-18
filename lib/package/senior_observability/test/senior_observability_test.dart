@@ -14,7 +14,8 @@ void main() {
     expect(SeniorObservability.isInitialized, isFalse);
     expect(SeniorEvents.values, isNotEmpty);
     expect(
-      const SeniorUser(tenant: 't', email: 'e').toMap(),
+      SeniorUserModel.fromEntity(const SeniorUser(tenant: 't', email: 'e'))
+          .toMap(),
       isA<Map<String, String>>(),
     );
   });

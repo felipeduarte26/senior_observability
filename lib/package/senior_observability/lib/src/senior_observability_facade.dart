@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'composite/composite.dart';
-import 'contracts/contracts.dart';
-import 'logger/logger.dart';
-import 'models/models.dart';
+import 'data/composite/composite.dart';
+import 'domain/domain.dart';
+import 'infra/logger/logger.dart';
 
 /// Main facade of the Senior Observability package.
 ///

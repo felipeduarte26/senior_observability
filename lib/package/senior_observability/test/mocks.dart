@@ -1,7 +1,6 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:senior_observability/senior_observability.dart';
 
-import 'package:senior_observability/src/logger/log_adapter.dart';
 
 class MockObservabilityProvider extends Mock
     implements IObservabilityProvider {}

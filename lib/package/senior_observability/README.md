@@ -7,18 +7,24 @@ Package Flutter de observabilidade que integra **Firebase**, **Microsoft Clarity
 ```
 ┌─────────────────────────────────────────────────────┐
 │                SeniorObservability                  │
-│                                                     │  ← Facade Patterns
+│                                                     │  ← Facade Pattern
 └──────────────────────┬──────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
-         │ CompositeObservability    │  ← Composite Patterns
+         │ CompositeObservability    │  ← Composite Pattern
          │      Provider             │
          └──┬──────────┬─────────┬───┘
             │          │         │
     ┌───────┴──┐ ┌─────┴────┐ ┌──┴───────────┐
-    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Patterns
+    │ Firebase │ │ Clarity  │ │    Sentry    │  ← Strategy Pattern
     │ Provider │ │ Provider │ │   Provider   │
-    └──────────┘ └──────────┘ └──────────────┘
+    └────┬─────┘ └────┬─────┘ └──────┬───────┘
+         │            │              │
+         ▼            ▼              ▼             ← Adapter Pattern (DI)
+    ┌─────────┐ ┌──────────┐ ┌────────────┐
+    │Firebase │ │ Clarity  │ │  Sentry    │
+    │Adapters │ │ Adapter  │ │  Adapter   │
+    └─────────┘ └──────────┘ └────────────┘
 ```
 
 ## Quick Start
